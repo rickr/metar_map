@@ -3,23 +3,35 @@ require 'xmlsimple'
 
 class Metar
   API_URL = 'https://www.aviationweather.gov/adds/dataserver_current/httpparam'
-  PARAMS = { dataSource: :metars, requestType: :retrieve, format: :xml, hoursBeforeNow: 3, mostRecent: true }
+  PARAMS = { dataSource: :metars, requestType: :retrieve, format: :xml, hoursBeforeNow: 3, mostRecentForEachStation: true }
+  REFRESH_AFTER = 60 * 30
 
-  attr_reader :id, :data
+  attr_reader :ids, :data, :metars
 
-  def initialize(id:)
-    @id = id
+  def initialize(ids:)
+    @ids = ids
+    validate_ids!
+    @metars = {}
+    @last_updated = 0
+  end
+
+  def validate_ids!
+    @ids = [ ids ] if ids.is_a?(String) || ids.is_a?(Symbol)
+    raise "ids must be a string or array of airport IDs (strings). Got #{ids.class}" unless ids.is_a? Array
   end
 
   def fetch
     xml_data = Net::HTTP.get_response(url).body
     data = XmlSimple.xml_in xml_data
-    @data = data['data'][0]['METAR'].first
+    data['data'][0]['METAR'].each do |d|
+      metar = Data.new(data: d)
+      @metars[metar.station_id.to_sym] = metar
+    end
+    @last_updated = Time.now
   end
 
-  def flight_category
-    fetch if data.nil?
-    data['flight_category'].first
+  def fetched?
+    data
   end
 
   private
@@ -31,6 +43,27 @@ class Metar
   end
 
   def url_params
-    PARAMS.to_a << [:stationString, id]
+    PARAMS.to_a << [:stationString, ids.join(' ')]
+  end
+
+  class Data
+    attr_reader :data
+
+    def initialize(data:)
+      @data = data
+    end
+
+    def station_id
+      data['station_id'].first
+    end
+
+    def flight_category
+      data['flight_category'].first
+    end
+
+    def raw
+      data['raw_text'].first
+    end
   end
 end
+
