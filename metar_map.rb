@@ -1,12 +1,15 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
 require 'airport'
 require 'utils'
+require 'sucker_punch'
 
-class MetarMap
+class MetarMapJob
+  include SuckerPunch::Job
+
   # Has many airports
-  # Config Opts
   AIRPORTS = %i[KISP KHWV KBDR KFOK]
 
+  # Config Opts
   VFR_COLOR = '04,166,14'
   MARGINAL_COLOR = '03,46,241'
   IFR_COLOR = '196,0,0'
@@ -14,16 +17,17 @@ class MetarMap
   #UPDATE_IN = 15.minutes
   UPDATE_IN = 5
 
-  attr_reader :airports
+  attr_reader :airports, :metar, :last_updated
+
+  def perform
+  end
 
   def initialize
     @airports = []
     @metar = Metar.new(ids: AIRPORTS)
+    @last_updated = Time.now
     fetch_metars!
     create_airports!
-    MetarMapJob.perform_in(UPDATE_IN)
-  ensure
-    MetarMapJob.perform_in(UPDATE_IN)
   end
 
   private
@@ -36,3 +40,4 @@ class MetarMap
     AIRPORTS.each { |airport| @airports << Airport.new(id: airport, metar: @metar.for_airport(id: airport)) }
   end
 end
+
