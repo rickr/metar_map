@@ -1,16 +1,6 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
-
 require 'airport'
-
-module IntegerWithMinutes
-  def minutes
-    self * 60
-  end
-end
-
-class Fixnum
-  include IntegerWithMinutes
-end
+require 'utils'
 
 class MetarMap
   # Has many airports
@@ -21,16 +11,19 @@ class MetarMap
   MARGINAL_COLOR = '03,46,241'
   IFR_COLOR = '196,0,0'
 
-  REFRESH_AFTER = 15.minutes
+  #UPDATE_IN = 15.minutes
+  UPDATE_IN = 5
 
   attr_reader :airports
 
   def initialize
     @airports = []
     @metar = Metar.new(ids: AIRPORTS)
-    puts "Update after #{REFRESH_AFTER}"
     fetch_metars!
     create_airports!
+    MetarMapJob.perform_in(UPDATE_IN)
+  ensure
+    MetarMapJob.perform_in(UPDATE_IN)
   end
 
   private
