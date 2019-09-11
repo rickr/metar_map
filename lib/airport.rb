@@ -1,4 +1,5 @@
-require_relative 'metar'
+#require_relative 'metar'
+require 'metar'
 require 'forwardable'
 
 class Airport
@@ -16,6 +17,19 @@ class Airport
   def initialize(id:, metar:)
     @id = id
     @metar = metar
+    set_color!
+  end
+
+  def set_color!
+    if ifr?
+      puts "LED #{MetarMap::IFR_COLOR}"
+    elsif marginal?
+      puts "LED #{MetarMap::MARGINAL_COLOR}"
+    elsif vfr?
+      puts "LED #{MetarMap::VFR_COLOR}"
+    else
+      puts "Unknown flight category: #{flight_category}"
+    end
   end
 
   def ifr?
