@@ -20,6 +20,10 @@ class Metar
     raise "ids must be a string or array of airport IDs (strings). Got #{ids.class}" unless ids.is_a? Array
   end
 
+  def for_airport(id:)
+    metars[id.to_sym]
+  end
+
   def fetch
     xml_data = Net::HTTP.get_response(url).body
     data = XmlSimple.xml_in xml_data
@@ -34,6 +38,10 @@ class Metar
     data
   end
 
+  def refresh?
+    Time.now - @last_updated > REFRESH_AFTER
+  end
+
   private
 
   def url
@@ -45,25 +53,40 @@ class Metar
   def url_params
     PARAMS.to_a << [:stationString, ids.join(' ')]
   end
+end
 
+class Metar
   class Data
+    module MetarItems
+      def metar_item(*names)
+        names.each do |name|
+          define_method(name) do
+            data[name.to_s].first
+          end
+        end
+      end
+    end
+
+    extend MetarItems
+
+    FIELDS = %i[
+      raw_text
+      station_id
+      observation_time
+      temp_c
+      dewpoint_c
+      wind_dir_degrees
+      wind_speed_kt
+      visibility_statute_mi
+      altim_in_hg
+      flight_category
+    ]
+
     attr_reader :data
+    metar_item(*FIELDS)
 
     def initialize(data:)
       @data = data
     end
-
-    def station_id
-      data['station_id'].first
-    end
-
-    def flight_category
-      data['flight_category'].first
-    end
-
-    def raw
-      data['raw_text'].first
-    end
   end
 end
-
