@@ -4,6 +4,6 @@ module IntegerWithMinutes
   end
 end
 
-class Fixnum
+class Integer
   include IntegerWithMinutes
 end

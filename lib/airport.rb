@@ -22,11 +22,11 @@ class Airport
 
   def set_color!
     if ifr?
-      puts "LED #{MetarMapJob::IFR_COLOR}"
+      puts "LED #{MetarMap::IFR_COLOR}"
     elsif marginal?
-      puts "LED #{MetarMapJob::MARGINAL_COLOR}"
+      puts "LED #{MetarMap::MARGINAL_COLOR}"
     elsif vfr?
-      puts "LED #{MetarMapJob::VFR_COLOR}"
+      puts "LED #{MetarMap::VFR_COLOR}"
     else
       puts "Unknown flight category: #{flight_category}"
     end

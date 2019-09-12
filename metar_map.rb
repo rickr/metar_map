@@ -3,11 +3,11 @@ require 'airport'
 require 'utils'
 require 'sucker_punch'
 
-class MetarMapJob
+class MetarMap
   include SuckerPunch::Job
 
   # Has many airports
-  AIRPORTS = %i[KISP KHWV KBDR KFOK]
+  AIRPORTS = %i[KISP KHWV KBDR KFOK KFRG KJFK KLGA KHTO]
 
   # Config Opts
   VFR_COLOR = '04,166,14'
@@ -18,9 +18,6 @@ class MetarMapJob
   UPDATE_IN = 5
 
   attr_reader :airports, :metar, :last_updated
-
-  def perform
-  end
 
   def initialize
     @airports = []
