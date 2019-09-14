@@ -8,4 +8,3 @@ class MetarMapJob
     MetarMap.new
   end
 end
-

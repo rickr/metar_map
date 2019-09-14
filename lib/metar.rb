@@ -4,14 +4,24 @@ require 'xmlsimple'
 class Metar
   API_URL = 'https://www.aviationweather.gov/adds/dataserver_current/httpparam'
   PARAMS = { dataSource: :metars, requestType: :retrieve, format: :xml, hoursBeforeNow: 3, mostRecentForEachStation: true }
+  METAR_FILE = '/tmp/metar'
 
   attr_reader :ids, :data, :metars
+
+  def self.last_updated
+    File.mtime(METAR_FILE)
+  end
+
+  def self.from_disk
+    metar = Metar.new(ids: 'none')
+    metar.parse_metar_xml(xml_data: File.read(METAR_FILE))
+    metar
+  end
 
   def initialize(ids:)
     @ids = ids
     validate_ids!
     @metars = {}
-    @last_updated = 0
   end
 
   def for_airport(id:)
@@ -20,16 +30,22 @@ class Metar
 
   def fetch
     xml_data = Net::HTTP.get_response(url).body
+
+    write_to_file xml_data
+
+    parse_metar_xml(xml_data: xml_data)
+  end
+
+  def fetched?
+    data
+  end
+
+  def parse_metar_xml(xml_data:)
     data = XmlSimple.xml_in xml_data
     data['data'][0]['METAR'].each do |d|
       metar = Data.new(data: d)
       @metars[metar.station_id.to_sym] = metar
     end
-    @last_updated = Time.now
-  end
-
-  def fetched?
-    data
   end
 
   private
@@ -47,6 +63,10 @@ class Metar
 
   def url_params
     PARAMS.to_a << [:stationString, ids.join(' ')]
+  end
+
+  def write_to_file(data)
+    File.open(METAR_FILE, 'w') { |f| f.write data }
   end
 end
 
@@ -89,7 +109,7 @@ class Metar
       return data['flight_category'].first unless data['flight_category'].nil?
       # Hack to fix this METAR that broke VFR flight category:
       # KFOK 111853Z COR 230/15G21KT 10SMSM CLR 75/68 A3009
-      return 'VFR' if data['sky_condition'].first['sky_cover']
+      return 'VFR' if data['sky_condition']&.first['sky_cover']
     end
   end
 end

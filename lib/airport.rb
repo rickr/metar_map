@@ -14,20 +14,26 @@ class Airport
   # Is this confusing?
   def_delegators :@metar, *Metar::Data::FIELDS
 
-  def initialize(id:, metar:)
+  def initialize(id:, index:,  metar:, lights:)
     @id = id
+    @index = index
     @metar = metar
+    @lights = lights
     set_color!
   end
 
   def set_color!
     if ifr?
-      puts "LED #{MetarMap::IFR_COLOR}"
+      @lights.set!(@index, MetarMap::IFR_COLOR)
+      puts "LED #{id}: #{MetarMap::IFR_COLOR}"
     elsif marginal?
-      puts "LED #{MetarMap::MARGINAL_COLOR}"
+      @lights.set!(@index, MetarMap::MARGINAL_COLOR)
+      puts "LED #{id}: #{MetarMap::MARGINAL_COLOR}"
     elsif vfr?
-      puts "LED #{MetarMap::VFR_COLOR}"
+      @lights.set!(@index, MetarMap::VFR_COLOR)
+      puts "LED #{id}: #{MetarMap::VFR_COLOR}"
     else
+      @lights.set!(@index, 0, 0, 0)
       puts "Unknown flight category: #{flight_category}"
     end
   end
