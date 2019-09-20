@@ -17,7 +17,8 @@ class MetarMap
   IFR_COLOR = [196, 0, 0]
   BRIGHTNESS = 10
 
-  UPDATE_IN = 1.minutes
+  #UPDATE_IN = 1.minutes
+  UPDATE_IN = 3
 
   attr_reader :airports, :metar, :last_updated
 
