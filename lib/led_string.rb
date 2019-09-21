@@ -8,8 +8,8 @@ class LedString
   def initialize(led_count:)
     @leds = Ws2812::Basic.new(led_count, LED_PIN)
     leds.open
-    leds.brightness = 100
-    leds.direct = true
+    leds.brightness = 50
+    leds.direct = false
   end
 
   def set!(index, color)

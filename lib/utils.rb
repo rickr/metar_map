@@ -7,3 +7,7 @@ end
 class Integer
   include IntegerWithMinutes
 end
+
+def raspi?
+  RUBY_PLATFORM == 'x86_64-linux'
+end
