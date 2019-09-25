@@ -25,13 +25,13 @@ class Airport
   def set_color!
     if ifr?
       @lights.set!(@index, MetarMap::IFR_COLOR)
-      puts "LED for #{id}: IFR (#{MetarMap::IFR_COLOR})"
+      logger.info "LED for #{id}: IFR (#{MetarMap::IFR_COLOR})"
     elsif marginal?
       @lights.set!(@index, MetarMap::MARGINAL_COLOR)
-      puts "LED for #{id}: Marginal (#{MetarMap::MARGINAL_COLOR})"
+      logger.info "LED for #{id}: Marginal (#{MetarMap::MARGINAL_COLOR})"
     elsif vfr?
       @lights.set!(@index, MetarMap::VFR_COLOR)
-      puts "LED for #{id}: VFR (#{MetarMap::VFR_COLOR})"
+      logger.info "LED for #{id}: VFR (#{MetarMap::VFR_COLOR})"
     else
       @lights.set!(@index, 0, 0, 0)
       puts "Unknown flight category: #{flight_category}"

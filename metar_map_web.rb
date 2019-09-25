@@ -10,6 +10,10 @@ class MetarMapWeb < Sinatra::Base
 
   configure :development do
     register Sinatra::Reloader
+    set :logging, nil
+    logger = Logger.new STDOUT
+    logger.level = Logger::INFO
+    set :logger, logger
   end
 
   get '/' do

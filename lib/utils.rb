@@ -9,5 +9,9 @@ class Integer
 end
 
 def raspi?
-  RUBY_PLATFORM == 'x86_64-linux'
+  RUBY_PLATFORM != 'x86_64-linux'
+end
+
+def logger
+  MetarMapWeb.settings.logger
 end

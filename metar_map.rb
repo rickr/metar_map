@@ -23,7 +23,7 @@ class MetarMap
   attr_reader :airports, :metar, :last_updated
 
   def initialize
-    @lights = LedString.new(led_count: AIRPORTS.count)
+    @lights = LedString.create(led_count: AIRPORTS.count)
     @airports = []
     @metar = Metar.new(ids: AIRPORTS)
     @last_updated = Time.now
@@ -31,15 +31,19 @@ class MetarMap
     fetch_metars!
     create_airports!
 
-    puts "Updating in #{UPDATE_IN}"
+    logger.info "Updating in #{UPDATE_IN}"
     MetarMapJob.perform_in(UPDATE_IN)
   end
 
   private
 
+  def logger
+    MetarMapWeb.settings.logger
+  end
+
   def fetch_metars!
-    puts "   Currently #{Time.now}"
-    puts "Last updated #{last_updated}"
+    logger.info "   Currently #{Time.now}"
+    logger.info "Last updated #{last_updated}"
     @metar.fetch
   end
 
