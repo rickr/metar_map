@@ -1,0 +1,40 @@
+### App Settings #############################################
+# Update every [10] minutes
+:update_rate: 4
+###############################################################
+
+
+
+
+### LED Settings #############################################
+# LED Brightness
+
+# LED Colors for various conditions.
+# All colors are an array of R, G, B values.
+:led:
+  :brightness: 10
+  :colors:
+    :vfr: [04, 166, 14]
+    :marginal: [03, 46, 241]
+    :ifr: [196, 0, 0]
+###############################################################
+
+
+
+
+### Hardware Settings #########################################
+# A list (array) of airports to be displayed on the map
+#
+# The order of this list must match the way the LEDs are
+# wired otherwise you will get incorrect results
+:airports:
+  - :KHZL
+  - :KISP
+  - :KHPN
+  - :KBDR
+  - :KFOK
+  - :KFRG
+  - :KJFK
+  - :KLGA
+  - :KHTO
+###############################################################

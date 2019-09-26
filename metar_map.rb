@@ -4,35 +4,30 @@ require 'airport'
 require 'led_string'
 require 'utils'
 require 'sucker_punch'
+require 'yaml'
 
 class MetarMap
   include SuckerPunch::Job
 
-  # Has many airports
-  AIRPORTS = %i[KHZL KISP KHPN KBDR KFOK KFRG KJFK KLGA KHTO]
+  CONFIG_FILENAME = 'metar_map_config.yaml'
+  CONFIG_FILE = File.join(File.dirname(__FILE__), 'config', CONFIG_FILENAME)
 
-  # Config Opts
-  VFR_COLOR = [04, 166, 14]
-  MARGINAL_COLOR = [03, 46, 241]
-  IFR_COLOR = [196, 0, 0]
-  BRIGHTNESS = 10
-
-  #UPDATE_IN = 1.minutes
-  UPDATE_IN = 3
-
-  attr_reader :airports, :metar, :last_updated
+  attr_reader :airports, :metar, :last_updated, :config
 
   def initialize
-    @lights = LedString.create(led_count: AIRPORTS.count)
+    @config = read_config!
+
+    @lights = LedString.create(led_count: config[:airports].count, brightness: config[:led][:brightness])
     @airports = []
-    @metar = Metar.new(ids: AIRPORTS)
+    @metar = Metar.new(ids: config[:airports])
     @last_updated = Time.now
 
     fetch_metars!
     create_airports!
 
-    logger.info "Updating in #{UPDATE_IN}"
-    MetarMapJob.perform_in(UPDATE_IN)
+    # FIXME Change back from seconds to min
+    logger.info "Updating in #{config[:update_rate]}"
+    MetarMapJob.perform_in(config[:update_rate])
   end
 
   private
@@ -54,11 +49,18 @@ class MetarMap
   end
 
   def create_airports!
-    AIRPORTS.each_with_index do |airport, i|
-      @airports << Airport.new(id: airport, index: i, metar: @metar.for_airport(id: airport), lights: @lights)
+    @config[:airports].each_with_index do |airport, i|
+      @airports << Airport.new(id: airport, index: i, metar: @metar.for_airport(id: airport), lights: @lights, colors: config[:led][:colors])
     end
 
     @lights.show
+  end
+
+  def read_config!
+    config = YAML.load(File.read(CONFIG_FILE))
+    # TODO Create config validation
+    puts config
+    config
   end
 end
 
