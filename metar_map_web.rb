@@ -17,14 +17,18 @@ class MetarMapWeb < Sinatra::Base
   end
 
   get '/' do
-    metar = Metar.from_disk
+    @metar = Metar.from_disk
+    @last_updated = (Time.now - Metar.last_updated).truncate
 
-    page = metar.metars.collect { |m| "#{m[1].station_id}: #{m[1].flight_category} #{m[1].raw_text} <br />" }
-    page << "<br />Last updated: #{(Time.now - Metar.last_updated).truncate} seconds ago"
+    erb :index
   end
 
   def self.run!
-    MetarMapJob.perform_async
+    begin
+      MetarMapJob.perform_async
+    rescue
+      MetarMapJob.perform_async
+    end
     super
   end
 

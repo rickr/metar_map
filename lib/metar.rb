@@ -13,9 +13,9 @@ class Metar
   end
 
   def self.from_disk
-    metar = Metar.new(ids: 'none')
-    metar.parse_metar_xml(xml_data: File.read(METAR_FILE))
-    metar
+    metars = Metar.new(ids: 'none')
+    metars.parse_metar_xml(xml_data: File.read(METAR_FILE))
+    metars.metars
   end
 
   def initialize(ids:)
@@ -110,6 +110,20 @@ class Metar
       # Hack to fix this METAR that broke VFR flight category:
       # KFOK 111853Z COR 230/15G21KT 10SMSM CLR 75/68 A3009
       return 'VFR' if data['sky_condition']&.first['sky_cover']
+    end
+
+    # Return a CSS class for use in the UI
+    def css_class
+      case flight_category
+      when 'VFR'
+        'is-success'
+      when 'IFR'
+        'is-danger'
+      when 'MARGINAL'
+        'is-info'
+      else
+        'is-dark'
+      end
     end
   end
 end

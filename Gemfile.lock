@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     backports (3.15.0)
+    byebug (11.0.1)
     coderay (1.1.2)
     concurrent-ruby (1.1.5)
     ffi (1.11.1)
@@ -66,9 +67,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  byebug
   guard
   guard-minitest
   minitest
+  pry
   sinatra
   sinatra-contrib
   sucker_punch (~> 2.0)
