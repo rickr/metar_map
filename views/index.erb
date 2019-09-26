@@ -17,6 +17,7 @@
       <article class="message <%= metar[1].css_class %>">
         <div class="message-header">
           <p><%= metar[1].station_id %></p>
+          <a href="/locate/<%= metar[1].station_id %>" class="button is-small is-white">Locate</a>
         </div>
         <div class="message-body">
           <p><%= metar[1].raw_text %></p>
