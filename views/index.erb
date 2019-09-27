@@ -13,8 +13,8 @@
       <h1 class="title">
         Metar Map Web
       </h1>
-      <% @metar.each do |metar| %>
-      <article class="message <%= metar[1].css_class %>">
+      <% @metars.each do |metar| %>
+      <article class="message <%= metar.css_class %>">
         <div class="message-header">
           <p><%= metar[1].station_id %></p>
           <a href="/locate/<%= metar[1].station_id %>" class="button is-small is-white">Locate</a>

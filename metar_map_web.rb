@@ -20,6 +20,20 @@ class MetarMapWeb < Sinatra::Base
     @metar = Metar.from_disk
     @last_updated = (Time.now - Metar.last_updated).truncate
 
+    airports = params[:show] ? params[:show].split(',') : MetarMap.airports
+    airports = [airports] unless airports.is_a? Array
+
+    # Fix this!!!
+    @metars = airports.flat_map.collect do |airport|
+      @metar.find do |key, value|
+        key == airport.upcase.to_sym
+      end
+    end
+
+    puts "M: #{@metars}"
+    #require 'byebug'
+    #byebug
+
     erb :index
   end
 

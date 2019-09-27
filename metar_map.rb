@@ -14,6 +14,11 @@ class MetarMap
 
   attr_reader :airports, :metar, :last_updated, :config
 
+  def self.airports
+    config = YAML.load(File.read(CONFIG_FILE))
+    config[:airports]
+  end
+
   def initialize
     @config = read_config!
 
