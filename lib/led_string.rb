@@ -12,7 +12,11 @@ class LedString
   end
 
   def logger
-    MetarMapWeb.settings.logger
+    if Object.const_defined? 'MetarMapWeb'
+      MetarMapWeb.settings.logger
+    else
+      Logger.new STDOUT
+    end
   end
 end
 

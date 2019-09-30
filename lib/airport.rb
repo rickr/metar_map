@@ -20,8 +20,11 @@ class Airport
     @metar = metar
     @lights = lights
     @colors = colors
-    require 'pry'
-    set_color!
+    if @metar
+      set_color!
+    else
+      logger.info "Metar for #{id} not found"
+    end
   end
 
   def ifr?

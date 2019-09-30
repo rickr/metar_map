@@ -16,6 +16,12 @@ class MetarMapWeb < Sinatra::Base
     set :logger, logger
   end
 
+  # Filters
+  before do
+    @title = 'METAR Map Web'
+  end
+
+  # Routes
   get '/' do
     @metar = Metar.from_disk
     @last_updated = (Time.now - Metar.last_updated).truncate
@@ -29,12 +35,19 @@ class MetarMapWeb < Sinatra::Base
         key == airport.upcase.to_sym
       end
     end
-
-    puts "M: #{@metars}"
-    #require 'byebug'
-    #byebug
+    @metars = @metars.reject { |m| m.nil? }
 
     erb :index
+  end
+
+  get '/settings' do
+    add_to_title 'Settings'
+    erb :settings
+  end
+
+  def add_to_title(content)
+    @title += " | #{content}"
+    @config = MetarMap.config
   end
 
   def self.run!
@@ -45,7 +58,6 @@ class MetarMapWeb < Sinatra::Base
     end
     super
   end
-
   run! if app_file == $0
 end
 

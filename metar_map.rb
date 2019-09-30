@@ -19,6 +19,10 @@ class MetarMap
     config[:airports]
   end
 
+  def self.config
+    config = YAML.load(File.read(CONFIG_FILE))
+  end
+
   def initialize
     @config = read_config!
 
@@ -38,7 +42,11 @@ class MetarMap
   private
 
   def logger
-    MetarMapWeb.settings.logger
+    if Object.const_defined? 'MetarMapWeb'
+      MetarMapWeb.settings.logger
+    else
+      Logger.new STDOUT
+    end
   end
 
   def fetch_metars!
