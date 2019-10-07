@@ -3,9 +3,11 @@ require 'ws2812'
 LED_PIN = 18
 
 class LedString
+  # If we are not on a RASPI we can't use GPIO so we can't initialize our
+  # LEDS. To fix this we can return a mocked object.
   def self.create(*args)
     if raspi?
-      return LedString::Real.new(args)
+      return LedString::Real.new(*args)
     else
       return LedString::Mock.new(args)
     end
@@ -23,20 +25,10 @@ end
 class LedString::Real
   attr_reader :leds
 
-  # If we are not on a RASPI we can't use GPIO so we can't initialize our
-  # LEDS. To fix this we can return a mocked object.
-  def self.create(*args)
-    if raspi?
-      return LedString.new(args)
-    else
-      return LedStringMock.new(args)
-    end
-  end
-
-  def initialize(led_count:)
+  def initialize(led_count:, brightness:)
     @leds = Ws2812::Basic.new(led_count, LED_PIN)
     leds.open
-    leds.brightness = 50
+    leds.brightness = brightness
     leds.direct = false
   end
 
@@ -75,5 +67,5 @@ class LedString::Mock < LedString
   def mock_response
     true
   end
-
 end
+
