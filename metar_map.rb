@@ -10,17 +10,21 @@ class MetarMap
   include SuckerPunch::Job
 
   CONFIG_FILENAME = 'metar_map_config.yaml'
+  LOCAL_CONFIG_FILENAME = 'metar_map_config.local.yaml'
+
   CONFIG_FILE = File.join(File.dirname(__FILE__), 'config', CONFIG_FILENAME)
+  LOCAL_CONFIG_FILE = File.join(File.dirname(__FILE__), 'config', LOCAL_CONFIG_FILENAME)
 
   attr_reader :airports, :metar, :last_updated, :config
 
-  def self.airports
-    config = YAML.load(File.read(CONFIG_FILE))
-    config[:airports]
-  end
-
   def self.config
     config = YAML.load(File.read(CONFIG_FILE))
+    local_config = YAML.load(File.read(LOCAL_CONFIG_FILE))
+    config.merge local_config
+  end
+
+  def self.airports
+    MetarMap.config[:airports]
   end
 
   def initialize
@@ -70,10 +74,7 @@ class MetarMap
   end
 
   def read_config!
-    config = YAML.load(File.read(CONFIG_FILE))
-    # TODO Create config validation
-    puts config
-    config
+    MetarMap.config
   end
 end
 
