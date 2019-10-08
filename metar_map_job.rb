@@ -6,5 +6,9 @@ class MetarMapJob
 
   def perform
     MetarMap.new
+  rescue
+    # Make sure we run a job
+    puts "RUNNING THIS"
+    raise
   end
 end

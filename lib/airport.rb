@@ -41,6 +41,8 @@ class Airport
 
   # TODO Extend this to work for wind values and what else???
   def set_color!
+    unknown_category! if metar.nil?
+
     if ifr?
       @lights.set!(@index, @colors[:ifr])
       logger.info "LED for #{id}: IFR (#{@colors[:ifr]})"
@@ -51,9 +53,15 @@ class Airport
       @lights.set!(@index, @colors[:vfr])
       logger.info "LED for #{id}: VFR (#{@colors[:vfr]})"
     else
-      @lights.set!(@index, 0, 0, 0)
-      logger.info "Unknown flight category: #{flight_category}"
+      unknown_category!
     end
+  end
+
+  private
+
+  def unknown_category!
+    @lights.set!(@index, [0, 0, 0])
+    logger.info "Unknown flight category for ID '#{id}': #{flight_category}"
   end
 end
 

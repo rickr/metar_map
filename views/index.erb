@@ -1,12 +1,12 @@
-<% @metars.each do |metar| %>
-<article class="message <%= metar[1].css_class %>">
-  <div class="message-header">
-    <p><%= metar[1].station_id %></p>
-    <a href="/locate/<%= metar[1].station_id %>" class="button is-small is-white">Locate</a>
+<div class="tile is-ancestor">
+  <% @metars.each_with_index do |metar, i| %>
+  <div class="tile is-parent">
+    <article class="tile is-child box tooltip notification <%= metar[1].css_class %>" data-tooltip="<%= metar[1].raw_text %>">
+      <p class="title is-4 has-text-centered"><%= metar[1].station_id %></p>
+    </article>
   </div>
-  <div class="message-body">
-    <p><%= metar[1].raw_text %></p>
-    <p><small>Last updated: <%= @last_updated %> seconds ago"</small></p>
-  </div>
-</article>
+  <% if (i + 1) % 7 == 0 %>
+</div>
+<div class="tile is-ancestor">
+  <% end %>
 <% end %>

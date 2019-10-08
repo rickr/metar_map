@@ -106,6 +106,7 @@ class Metar
     end
 
     def flight_category
+      return 'UNKWN' unless data.has_key? 'flight_category'
       return data['flight_category'].first unless data['flight_category'].nil?
       # Hack to fix this METAR that broke VFR flight category:
       # KFOK 111853Z COR 230/15G21KT 10SMSM CLR 75/68 A3009
