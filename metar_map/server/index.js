@@ -4,91 +4,21 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = 4567;
-const fs = require('fs');
 const https = require('https');
-const request = require('request');
-const querystring = require('querystring');
-const yaml = require('js-yaml');
 const convert = require('xml-js');
 
 // Local libs
-const config = require('./config')
+const config = require('./lib/config')
+const MetarRequest = require('./lib/metar_request')
 
 const app = express();
 const enableWs = require('express-ws')
 enableWs(app)
 
-/*
- *
- * Classes
- *
- */
-class MetarRequest{
-  static params = {
-      dataSource: 'metars',
-      requestType: 'retrieve',
-      format: 'xml',
-      hoursBeforeNow: '3',
-      mostRecentForEachStation: 'true'
-  };
-
-  static fileName = "/tmp/metar";
-
-  static stationString = () => {
-    return("&stationString=" + config.airports.join(','))
-  }
-
-  static url(){
-    return(
-      'https://www.aviationweather.gov/adds/dataserver_current/httpparam?' +
-      querystring.encode(this.params) +
-      this.stationString()
-    );
-  }
-
-  static as_json(){
-    let metar = {
-      fetched:  null,
-      airports: []
-    };
-
-    let metarXML = fs.readFileSync(this.fileName).toString();
-    let metarJSON = convert.xml2js(metarXML, { compact: true } );
-
-    // Return our airports in the order they are in the config
-    config.airports.forEach((airport, i) => {
-      metar.airports.push(metarJSON.response.data.METAR.find(metar => metar.station_id._text == airport));
-    })
-
-    return metar;
-  }
-
-  static execute(){
-    const currentTime = Math.floor(Date.now() / 1000);
-    console.log("   Updating at " + currentTime);
-
-    request(MetarRequest.url(), (error, response, body) => {
-      console.log("Writing to " + MetarRequest.fileName);
-      fs.writeFile(MetarRequest.fileName, body, (err) => {
-        if(err){ return(console.log(err)) }
-      })
-    });
-
-    let update_in = config.update_rate * 60 * 1000;
-    console.log("Next update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
-    setTimeout(MetarRequest.execute, update_in);
-  }
-}
-
-/*************************
- *
- * End Classes
- *
- *************************/
-
 app.use(bodyParser.json());
 app.use(cors());
 
+// Serve our production build
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.ws('/metar.ws', (ws, req) => {
