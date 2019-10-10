@@ -89,23 +89,7 @@ class MetarRequest{
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('<h1>Welcome!!</h1>');
-});
-
-app.get('/metar.xml', (req, res) => {
-  var stream = fs.createReadStream('/tmp/metar');
-  res.set('Content-Type', 'text/xml');
-  stream.pipe(res);
-});
-
-app.get('/metar', (req, res) => {
-  var stream = fs.readFile('/tmp/metar', (err, contents) => {
-    metar = convert.xml2js(contents.toString(), { compact: true });
-    res.set('Content-Type', 'text/json');
-    res.send(metar);
-  });
-});
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.ws('/metar.ws', (ws, req) => {
   sendMetarData(ws);
