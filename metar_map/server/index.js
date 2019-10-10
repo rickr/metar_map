@@ -47,7 +47,6 @@ class MetarRequest{
   }
 
   static as_json(){
-    console.log("Reading data from " + this.fileName);
     let metar = {
       fetched:  null,
       airports: []

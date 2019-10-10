@@ -13,6 +13,8 @@ class Dashboard extends React.Component {
   ws = new WebSocket('ws://localhost:4567/metar.ws');
 
   airportsPerRow = 7;
+  cycleDelay = 10 * 1000;
+  firstMessage = true;
 
   constructor(props){
     super(props);
@@ -20,11 +22,21 @@ class Dashboard extends React.Component {
       metars: [],
       metarCount: 0,
       selectedAirport: null,
-      airportComponents: []
+      airportComponents: [],
+      currentIndex: 0
     };
   };
 
   updateSelectedAirport = (metar) => { this.setState({ selectedAirport: metar }); };
+
+  cycleAirports = () => {
+    let nextIndex = this.state.currentIndex >= (this.state.metars.length - 1) ? 0 : this.state.currentIndex + 1
+    this.setState({ currentIndex: nextIndex });
+
+    this.updateSelectedAirport(this.state.metars[this.state.currentIndex]);
+
+    setTimeout(this.cycleAirports, this.cycleDelay)
+  }
 
   componentDidMount() {
     this.ws.onopen = () => {
@@ -37,12 +49,21 @@ class Dashboard extends React.Component {
         console.log('RX metar message');
         this.setState({
           metars: data.payload.airports,
-          metarCount: data.payload.airports.length
+          metarCount: data.payload.airports.length,
         })
+
+        if(this.firstMessage){
+          this.firstMessage = false;
+          this.setState({
+            selectedAirport: data.payload.airports[0]
+          })
+        }
       } else (
         console.log('Unknown message: ' + data)
       )
     }
+
+    this.cycleAirports();
   }
 
   render(){
@@ -78,7 +99,7 @@ class AirportRows extends React.Component{
     for(let i = 0; i < this.props.metars.length; i++){
       let metar = this.props.metars[i];
       let airport = Object.values(metar.station_id);
-      let flightCategoryCSS = this.flightCategoryToCSS(metar.flight_category._text);
+      let flightCategoryCSS = metar.flight_category ? this.flightCategoryToCSS(metar.flight_category._text) : 'unknown-category';
       let rawText = Object.values(metar.raw_text);
 
       let item = <Airport
@@ -115,7 +136,7 @@ class AirportRow extends React.Component {
 
 class Airport extends React.Component {
   sendAirportData = () => {
-    this.props.updateSelectedAirport(this.props.raw_text);
+    this.props.updateSelectedAirport(this.props.metar);
   }
 
   render() {
@@ -132,14 +153,16 @@ class Airport extends React.Component {
 
 class AirportWarning extends React.Component {
   render(){
-    let warning = []
+    let warning = [];
+    let key = Date.now();
     // We can probably be smarter about displaying warnings
-    if(this.props.metar.wind_speed_kt._text > 20){ warning.push(<i class="fas fa-exclamation-triangle"></i>) }
-    if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 20){ warning.push(<i class="fas fa-exclamation-triangle"></i>) }
-    if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 30){ warning.push(<i class="fas fa-exclamation-triangle"></i>) }
+    // Icing, better represent wind, what else?
+    if(this.props.metar.wind_speed_kt._text > 20){ warning.push(<i key={key} className="fas fa-exclamation-triangle"></i>) }
+    if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 20){ warning.push(<i key={key + 1} className="fas fa-exclamation-triangle"></i>) }
+    if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 30){ warning.push(<i key={key + 2} className="fas fa-exclamation-triangle"></i>) }
 
     return(
-      <p class="icon is-small has-text-warning">
+      <p id={this.props.metar.station_id} className="icon is-small has-text-warning">
         { warning }
       </p>
     )
@@ -148,9 +171,16 @@ class AirportWarning extends React.Component {
 
 class AirportInfo extends React.Component {
   render(){
+    let metar_text = null;
+    if(this.props.selectedAirport){
+      metar_text = this.props.selectedAirport.raw_text._text;
+    }else{
+      metar_text = ''
+    }
+
     return(
       <pre>
-        {this.props.selectedAirport}
+        {metar_text}
       </pre>
     )
   }
