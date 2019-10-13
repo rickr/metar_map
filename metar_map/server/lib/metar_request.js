@@ -17,8 +17,6 @@ class MetarRequest{
     }
   };
 
-  static fileName(){ return("/tmp/metar") };
-
   static stationString(){
     return("&stationString=" + config.airports.join(','))
   }
@@ -32,22 +30,22 @@ class MetarRequest{
   }
 
   static as_json(){
-    console.log("Getting JSON!");
     let metar = {
       fetched:  null,
       airports: []
     };
 
-    let metarXML = fs.readFileSync(this.fileName()).toString();
+    let metarXML = fs.readFileSync(config.metar_file).toString();
     let metarJSON = convert.xml2js(metarXML, { compact: true } );
+    //console.log(metarJSON.response.errors);
+
+    if(metarJSON.response.data == null){
+      console.log("The metar data looks invalid - aborting (check '" + config.metar_file + "')");
+      return { has_errors: true, errors: metarJSON.response.errors }
+    }
 
     // Return our airports in the order they are in the config
     config.airports.forEach((airport, i) => {
-      // This breaks if we dont know the format - should warn us!
-      if(metarJSON.response == null){
-        console.log("The metar data looks invalid - aborting (check '" + this.fileName() + "')");
-        return false;
-      }
       metar.airports.push(metarJSON.response.data.METAR.find(metar => metar.station_id._text == airport));
     })
 
@@ -59,8 +57,8 @@ class MetarRequest{
     console.log("   Updating at " + currentTime);
 
     request(MetarRequest.url(), (error, response, body) => {
-      console.log("Writing to " + MetarRequest.fileName());
-      fs.writeFile(MetarRequest.fileName(), body, (err) => {
+      console.log("Writing to " + config.metar_file);
+      fs.writeFile(config.metar_file, body, (err) => {
         if(err){ return(console.log(err)) }
       })
     });
