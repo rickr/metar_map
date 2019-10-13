@@ -34,7 +34,10 @@ function sendMetarData(ws){
         payload: MetarRequest.as_json()
       }
     ));
+  }else{
+    console.log("Unknown ready state: " + ws.readyState);
   }
+
   setTimeout(sendMetarData, 10 * 1000, ws)
 }
 

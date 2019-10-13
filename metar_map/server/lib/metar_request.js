@@ -7,39 +7,47 @@ const request = require('request');
 const querystring = require('querystring');
 
 class MetarRequest{
-  static params = {
+  static params(){
+    return {
       dataSource: 'metars',
       requestType: 'retrieve',
       format: 'xml',
       hoursBeforeNow: '3',
       mostRecentForEachStation: 'true'
+    }
   };
 
-  static fileName = "/tmp/metar";
+  static fileName(){ return("/tmp/metar") };
 
-  static stationString = () => {
+  static stationString(){
     return("&stationString=" + config.airports.join(','))
   }
 
   static url(){
     return(
       'https://www.aviationweather.gov/adds/dataserver_current/httpparam?' +
-      querystring.encode(this.params) +
+      querystring.encode(this.params()) +
       this.stationString()
     );
   }
 
   static as_json(){
+    console.log("Getting JSON!");
     let metar = {
       fetched:  null,
       airports: []
     };
 
-    let metarXML = fs.readFileSync(this.fileName).toString();
+    let metarXML = fs.readFileSync(this.fileName()).toString();
     let metarJSON = convert.xml2js(metarXML, { compact: true } );
 
     // Return our airports in the order they are in the config
     config.airports.forEach((airport, i) => {
+      // This breaks if we dont know the format - should warn us!
+      if(metarJSON.response == null){
+        console.log("The metar data looks invalid - aborting (check '" + this.fileName() + "')");
+        return false;
+      }
       metar.airports.push(metarJSON.response.data.METAR.find(metar => metar.station_id._text == airport));
     })
 
@@ -51,8 +59,8 @@ class MetarRequest{
     console.log("   Updating at " + currentTime);
 
     request(MetarRequest.url(), (error, response, body) => {
-      console.log("Writing to " + MetarRequest.fileName);
-      fs.writeFile(MetarRequest.fileName, body, (err) => {
+      console.log("Writing to " + MetarRequest.fileName());
+      fs.writeFile(MetarRequest.fileName(), body, (err) => {
         if(err){ return(console.log(err)) }
       })
     });
