@@ -37,7 +37,6 @@ class MetarRequest{
 
     let metarXML = fs.readFileSync(config.metar_file).toString();
     let metarJSON = convert.xml2js(metarXML, { compact: true } );
-    //console.log(metarJSON.response.errors);
 
     if(metarJSON.response.data == null){
       console.log("The metar data looks invalid - aborting (check '" + config.metar_file + "')");
@@ -49,6 +48,7 @@ class MetarRequest{
       metar.airports.push(metarJSON.response.data.METAR.find(metar => metar.station_id._text == airport));
     })
 
+    metar.lastUpdated = fs.statSync(config.metar_file).mtime;
     return metar;
   }
 
