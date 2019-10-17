@@ -23,8 +23,8 @@ board.on("ready", function() {
 
   strip.on("ready", function() {
     console.log("Gogogo");
-    //dynamicRainbow()
-    cycleRGB();
+    dynamicRainbow()
+    //cycleRGB();
   });
 
   function cycleRGB(){

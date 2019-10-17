@@ -3,9 +3,10 @@ Description=Metar Map Web Service
 After=multi-user.target
 
 [Service]
-Type=idle
-WorkingDirectory=/root/metar_map
-ExecStart=/usr/local/rvm/bin/rvm all do ruby /root/metar_map/metar_map_web.rb
+Type=simple
+WorkingDirectory=/root/metar_map/metar_map/server
+ExecStart=npm start
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
