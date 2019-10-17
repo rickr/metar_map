@@ -8,7 +8,6 @@ class Config {
     const defaultConfig = yaml.safeLoad(fs.readFileSync(defaultFileName, 'utf8'));
     const localConfig = yaml.safeLoad(fs.readFileSync(localFileName, 'utf8'));
     let config = {...defaultConfig, ...localConfig };
-    console.log(config);
     return config;
   }
 }

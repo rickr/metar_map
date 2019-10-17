@@ -17,6 +17,14 @@ class MetarRequest{
     }
   };
 
+  static fileName(){
+    return config.metar_file;
+  }
+
+  static requestName(){
+    return "METAR";
+  }
+
   static stationString(){
     return("&stationString=" + config.airports.join(','))
   }
@@ -29,44 +37,106 @@ class MetarRequest{
     );
   }
 
+  static readDataFile(){
+    let dataXML = fs.readFileSync(this.fileName()).toString();
+    return(convert.xml2js(dataXML, { compact: true } ));
+  }
+
   static as_json(){
-    let metar = {
+    let data = {
       fetched:  null,
       airports: []
     };
 
-    let metarXML = fs.readFileSync(config.metar_file).toString();
-    let metarJSON = convert.xml2js(metarXML, { compact: true } );
+    let dataJSON = this.readDataFile();
 
-    if(metarJSON.response.data == null){
-      console.log("The metar data looks invalid - aborting (check '" + config.metar_file + "')");
-      return { has_errors: true, errors: metarJSON.response.errors }
+    if(dataJSON.response.data == null){
+      console.log("The data looks invalid - aborting (check '" + this.fileName() + "')");
+      return { has_errors: true, errors: dataJSON.response.errors }
     }
 
+    this.orderData(data, dataJSON);
+
+    data.lastUpdated = fs.statSync(this.fileName()).mtime;
+    return data;
+  }
+
+  static orderData(data, dataJSON){
     // Return our airports in the order they are in the config
     config.airports.forEach((airport, i) => {
-      metar.airports.push(metarJSON.response.data.METAR.find(metar => metar.station_id._text == airport));
+      data.airports.push(dataJSON.response.data.METAR.find(data => data.station_id._text == airport));
     })
-
-    metar.lastUpdated = fs.statSync(config.metar_file).mtime;
-    return metar;
   }
 
   static execute(){
-    const currentTime = Math.floor(Date.now() / 1000);
-    console.log("   Updating at " + currentTime);
+    return new Promise((resolve, reject) => {
+      const currentTime = Math.floor(Date.now() / 1000);
+      console.log("   Updating " + this.requestName() + " at " + currentTime);
 
-    request(MetarRequest.url(), (error, response, body) => {
-      console.log("Writing to " + config.metar_file);
-      fs.writeFile(config.metar_file, body, (err) => {
-        if(err){ return(console.log(err)) }
-      })
+      request(this.url(), (error, response, body) => {
+        console.log("Writing " + this.requestName() + " to " + this.fileName());
+        fs.writeFile(this.fileName(), body, (err) => {
+          if(err){ return(console.log(err)) }
+        })
+      });
+
+      let update_in = config.update_rate * 60 * 1000;
+      console.log("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
+      setTimeout(this.execute, update_in);
+      resolve(true);
     });
-
-    let update_in = config.update_rate * 60 * 1000;
-    console.log("Next update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
-    setTimeout(MetarRequest.execute, update_in);
   }
 }
 
-module.exports = MetarRequest;
+class TafRequest extends MetarRequest{
+  static params(){
+    return {
+      dataSource: 'tafs',
+      requestType: 'retrieve',
+      format: 'xml',
+      hoursBeforeNow: '3',
+      mostRecentForEachStation: 'true'
+    }
+  };
+
+  static fileName(){
+    return(config.taf_file);
+  }
+
+  static requestName(){
+    return "TAF";
+  }
+
+  static orderData(data, dataJSON){
+    // Return our airports in the order they are in the config
+    config.airports.forEach((airport, i) => {
+      data.airports.push(dataJSON.response.data.TAF.find(data => data.station_id._text == airport));
+    })
+  }
+
+}
+
+class WeatherRequest{
+  static execute(){
+    MetarRequest.execute();
+    TafRequest.execute();
+  }
+
+  static as_json(){
+    let metars = MetarRequest.as_json();
+    let tafs = TafRequest.as_json();
+    let data = {}
+    data.metars = metars;
+    data.tafs = tafs;
+    config.airports.forEach((airport, i) => {
+      // This assumes everything is in the correct order...seems sketchy
+      data[airport] = {};
+      data[airport].metar = metars.airports[i]
+      data[airport].taf = tafs.airports[i]
+    })
+
+    return data
+  }
+}
+
+module.exports = { WeatherRequest, MetarRequest, TafRequest };

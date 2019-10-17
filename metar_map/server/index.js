@@ -12,7 +12,9 @@ enableWs(app)
 
 // Local libs
 const config = require('./lib/config')
-const MetarRequest = require('./lib/metar_request')
+const MetarRequest = require('./lib/metar_request').MetarRequest
+const TafRequest = require('./lib/metar_request').TafRequest
+const WeatherRequest = require('./lib/metar_request').WeatherRequest
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -29,7 +31,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 function sendMetarData(ws){
   if(ws.readyState === 1){
-    let payload = MetarRequest.as_json();
+    let payload = WeatherRequest.as_json();
 
     if(payload.has_errors){
       ws.send(JSON.stringify(
@@ -45,15 +47,15 @@ function sendMetarData(ws){
         }
       ));
     }
+
+    setTimeout(sendMetarData, 10 * 1000, ws)
   }else{
     console.log("Unknown ready state: " + ws.readyState);
   }
-
-  setTimeout(sendMetarData, 10 * 1000, ws)
 }
 
 app.listen(port, () => console.log(`Metar Map listening on port ${port}!`))
 
 // Begin fetching metars
-MetarRequest.execute();
+WeatherRequest.execute();
 
