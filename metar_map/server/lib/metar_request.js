@@ -69,22 +69,19 @@ class MetarRequest{
   }
 
   static execute(){
-    return new Promise((resolve, reject) => {
-      const currentTime = Math.floor(Date.now() / 1000);
-      console.log("   Updating " + this.requestName() + " at " + currentTime);
+    const currentTime = Math.floor(Date.now() / 1000);
+    console.log("   Updating " + this.requestName() + " at " + currentTime);
 
-      request(this.url(), (error, response, body) => {
-        console.log("Writing " + this.requestName() + " to " + this.fileName());
-        fs.writeFile(this.fileName(), body, (err) => {
-          if(err){ return(console.log(err)) }
-        })
-      });
-
-      let update_in = config.update_rate * 60 * 1000;
-      console.log("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
-      setTimeout(this.execute, update_in);
-      resolve(true);
+    request(this.url(), (error, response, body) => {
+      console.log("Writing " + this.requestName() + " to " + this.fileName());
+      fs.writeFile(this.fileName(), body, (err) => {
+        if(err){ return(console.log(err)) }
+      })
     });
+
+    let update_in = config.update_rate * 60 * 1000;
+    console.log("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
+    setTimeout(this.execute, 5 * 1000);
   }
 }
 
