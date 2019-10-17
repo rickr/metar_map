@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -7,25 +8,25 @@ const port = 4567;
 const https = require('https');
 const convert = require('xml-js');
 
+const app = express();
+enableWs(app)
+
 // Local libs
 const config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request')
 
-const app = express();
-const enableWs = require('express-ws')
-enableWs(app)
-
 app.use(bodyParser.json());
 app.use(cors());
-
-// Serve our production build
-app.use(express.static(path.join(__dirname, '../client/build')));
 
 app.ws('/metar.ws', (ws, req) => {
   sendMetarData(ws);
 
   ws.on('message', (message) => { console.log("Client connected"); })
 })
+
+// Serve our production build
+app.use(express.static(path.join(__dirname, '../client/build')));
+
 
 function sendMetarData(ws){
   if(ws.readyState === 1){

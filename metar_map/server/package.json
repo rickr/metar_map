@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "metar-map-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "WS and HTTP metar-map server",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
@@ -20,6 +20,7 @@
     "js-yaml": "^3.13.1",
     "node-pixel": "^0.10.2",
     "nodemon": "^1.19.3",
+    "raspi-io": "^10.0.4",
     "request": "^2.88.0",
     "xml-js": "^1.6.11"
   }
