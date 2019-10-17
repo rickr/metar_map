@@ -43,10 +43,7 @@ class Dashboard extends React.Component {
   }
 
   componentDidMount() {
-    this.ws.onopen = () => {
-      console.log('Connected')
-      this.ws.send("Hello");
-    }
+    this.ws.onopen = () => { console.log('Connected') }
 
     this.ws.onmessage = (evt) => {
       const data = JSON.parse(evt.data);
