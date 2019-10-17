@@ -9,16 +9,19 @@ function App() {
   );
 }
 
+//TODO Breakout classes to files
 class Dashboard extends React.Component {
   ws = new WebSocket('ws://localhost:4567/metar.ws');
 
   airportsPerRow = 7;
+  // FIXME make sure delay starts after last clicked
   cycleDelay = 10 * 1000;
   firstMessage = true;
 
   constructor(props){
     super(props);
     this.state = {
+      airports: {},
       metars: [],
       metarCount: 0,
       selectedAirport: null,
@@ -42,23 +45,25 @@ class Dashboard extends React.Component {
   componentDidMount() {
     this.ws.onopen = () => {
       console.log('Connected')
+      this.ws.send("Hello");
     }
 
     this.ws.onmessage = (evt) => {
       const data = JSON.parse(evt.data);
       if(data.type === 'metar'){
         console.log('RX metar message');
+        console.log(data.payload.metars.airports.length);
 
-        this.setState({
-          metars: data.payload.airports,
-          metarCount: data.payload.airports.length,
-          lastUpdated: data.payload.lastUpdated
+        this.setState({ airports: data.payload,
+          metars: data.payload.metars.airports,
+          metarCount: data.payload.metars.airports.length,
+          lastUpdated: data.payload.metars.lastUpdated
         })
 
         if(this.firstMessage){
           this.firstMessage = false;
           this.setState({
-            selectedAirport: data.payload.airports[0]
+            selectedAirport: data.payload.metars.airports[0]
           })
         }
       } else {
@@ -77,7 +82,7 @@ class Dashboard extends React.Component {
         <AirportRows metars={this.state.metars} airportRows={this.state.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
         <CurrentTimes last_updated={new Date(this.state.lastUpdated)} />
 
-        <AirportInfo selectedAirport={this.state.selectedAirport}/>
+        <AirportInfo selectedAirport={this.state.selectedAirport} airports={this.state.airports}/>
       </div>
     );
   };
@@ -85,6 +90,7 @@ class Dashboard extends React.Component {
 
 class AirportRows extends React.Component{
   // Convert flight categories to a valid bulma css color class
+  // TODO Add low IFR
   flightCategoryToCSS(flightCategory){
     if(flightCategory === "VFR"){
       return 'is-success';
@@ -176,8 +182,17 @@ class AirportWarning extends React.Component {
 class AirportInfo extends React.Component {
   render(){
     let metar_text = null;
+    let taf_text = [];
     if(this.props.selectedAirport){
+      let airport_id = this.props.selectedAirport.station_id._text;
+
       metar_text = this.props.selectedAirport.raw_text._text;
+      let taf = this.props.airports[airport_id].taf
+      if(taf){
+        // FIXME This needs to be split on TEMPO|BECMG|FM|PROB
+        // and joined with newlines below
+        taf_text = taf.raw_text._text
+      }
     }else{
       metar_text = ''
     }
@@ -186,6 +201,7 @@ class AirportInfo extends React.Component {
       <div>
         <pre>
           {metar_text}
+          <p>{taf_text}</p>
         </pre>
       </div>
     )
