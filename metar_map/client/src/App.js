@@ -23,7 +23,8 @@ class Dashboard extends React.Component {
       metarCount: 0,
       selectedAirport: null,
       airportComponents: [],
-      currentIndex: 0
+      currentIndex: 0,
+      lastUpdated: 0
     };
   };
 
@@ -47,9 +48,11 @@ class Dashboard extends React.Component {
       const data = JSON.parse(evt.data);
       if(data.type === 'metar'){
         console.log('RX metar message');
+
         this.setState({
           metars: data.payload.airports,
           metarCount: data.payload.airports.length,
+          lastUpdated: data.payload.lastUpdated
         })
 
         if(this.firstMessage){
@@ -58,9 +61,9 @@ class Dashboard extends React.Component {
             selectedAirport: data.payload.airports[0]
           })
         }
-      } else (
-        console.log('Unknown message: ' + data)
-      )
+      } else {
+        console.log('Unknown message: ' + JSON.stringify(data));
+      }
     }
 
     this.cycleAirports();
@@ -72,6 +75,7 @@ class Dashboard extends React.Component {
         <pre>{JSON.stringify(this.state.metars)}</pre>
 
         <AirportRows metars={this.state.metars} airportRows={this.state.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
+        <CurrentTimes last_updated={new Date(this.state.lastUpdated)} />
 
         <AirportInfo selectedAirport={this.state.selectedAirport}/>
       </div>
@@ -157,7 +161,7 @@ class AirportWarning extends React.Component {
     let key = Date.now();
     // We can probably be smarter about displaying warnings
     // Icing, better represent wind, what else?
-    if(this.props.metar.wind_speed_kt._text > 20){ warning.push(<i key={key} className="fas fa-exclamation-triangle"></i>) }
+    if(this.props.metar.wind_speed_kt && this.props.metar.wind_speed_kt._text > 20){ warning.push(<i key={key} className="fas fa-exclamation-triangle"></i>) }
     if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 20){ warning.push(<i key={key + 1} className="fas fa-exclamation-triangle"></i>) }
     if(this.props.metar.wind_gust_kt && this.props.metar.wind_gust_kt._text > 30){ warning.push(<i key={key + 2} className="fas fa-exclamation-triangle"></i>) }
 
@@ -179,9 +183,47 @@ class AirportInfo extends React.Component {
     }
 
     return(
-      <pre>
-        {metar_text}
-      </pre>
+      <div>
+        <pre>
+          {metar_text}
+        </pre>
+      </div>
+    )
+  }
+}
+
+class CurrentTimes extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      currentTime: new Date().toLocaleString(),
+    }
+  }
+
+  componentDidMount() {
+    setInterval( () => {
+      this.setState({
+        currentTime : new Date()
+      })
+    },1000)
+  }
+
+  metarAgeTime = () => {
+    let diff = Math.floor((this.state.currentTime - this.props.last_updated) / 1000);
+    let min = Math.floor(diff / 60);
+    let sec = Math.floor(diff % 60);
+    return min + ":" + sec.toString().padStart(2, '0');
+  }
+
+  render(){
+    return(
+      <div className='tile is-ancenstor'>
+        <div className='tile is-parent is-12 has-text-grey-lighter' style={{ marginTop: '0px', paddingTop: '0px' }} >
+          <div className='tile is-child'>
+            <div className='is-pulled-right'>{this.metarAgeTime()} old</div>
+          </div>
+        </div>
+      </div>
     )
   }
 }

@@ -4,8 +4,7 @@ const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const port = 4567;
-const https = require('https');
+const port = 4567; const https = require('https');
 const convert = require('xml-js');
 
 const app = express();
@@ -30,12 +29,26 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 function sendMetarData(ws){
   if(ws.readyState === 1){
-    ws.send(JSON.stringify(
-      { type: 'metar',
-        payload: MetarRequest.as_json()
-      }
-    ));
+    let payload = MetarRequest.as_json();
+
+    if(payload.has_errors){
+      ws.send(JSON.stringify(
+        {
+          type: 'error',
+          payload: payload
+        }
+      ));
+    } else {
+      ws.send(JSON.stringify(
+        { type: 'metar',
+          payload: payload
+        }
+      ));
+    }
+  }else{
+    console.log("Unknown ready state: " + ws.readyState);
   }
+
   setTimeout(sendMetarData, 10 * 1000, ws)
 }
 

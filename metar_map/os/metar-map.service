@@ -1,0 +1,11 @@
+[Unit]
+Description=Metar Map Web Service
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/root/metar_map
+ExecStart=/usr/local/rvm/bin/rvm all do ruby /root/metar_map/metar_map_web.rb
+
+[Install]
+WantedBy=multi-user.target
