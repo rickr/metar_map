@@ -15,6 +15,7 @@ const config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request').MetarRequest
 const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
+const NeoPixel = require('./lib/neo_pixel')
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -54,8 +55,10 @@ function sendMetarData(ws){
   }
 }
 
-app.listen(port, () => console.log(`Metar Map listening on port ${port}!`))
 
 // Begin fetching metars
 WeatherRequest.execute();
+NeoPixel.execute();
+
+app.listen(port, () => console.log(`Metar Map listening on port ${port}!`))
 
