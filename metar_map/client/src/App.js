@@ -77,8 +77,6 @@ class Dashboard extends React.Component {
   render(){
     return(
       <div>
-        <pre>{JSON.stringify(this.state.metars)}</pre>
-
         <AirportRows metars={this.state.metars} airportRows={this.state.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
         <CurrentTimes last_updated={new Date(this.state.lastUpdated)} />
 
