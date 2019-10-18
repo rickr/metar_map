@@ -21,6 +21,7 @@ class NeoPixel{
       });
 
       function updateMap(){
+        console.log("Updating LEDs");
         const metars = MetarRequest.as_json();
 
         config.airports.forEach(function(airport, i){
@@ -46,7 +47,7 @@ class NeoPixel{
               break;
           }
 
-          console.log("Updating " + airport + " to " + skyCondition + " (" + ledColor + ")");
+          //console.log("Updating " + airport + " to " + skyCondition + " (" + ledColor + ")");
           if(ledColor){
             strip.pixel(i).color(ledColor);
           } else {
