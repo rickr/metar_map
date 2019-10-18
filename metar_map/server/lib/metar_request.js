@@ -38,6 +38,7 @@ class MetarRequest{
   }
 
   static readDataFile(){
+    if(!fs.existsSync(this.fileName())) { return false }
     let dataXML = fs.readFileSync(this.fileName()).toString();
     return(convert.xml2js(dataXML, { compact: true } ));
   }
@@ -49,6 +50,8 @@ class MetarRequest{
     };
 
     let dataJSON = this.readDataFile();
+    if(dataJSON == false){ return {} }
+
 
     if(dataJSON.response.data == null){
       console.log("The data looks invalid - aborting (check '" + this.fileName() + "')");
