@@ -184,9 +184,7 @@ class AirportInfo extends React.Component {
       metar_text = this.props.selectedAirport.raw_text._text;
       let taf = this.props.airports[airport_id].taf
       if(taf){
-        // FIXME This needs to be split on TEMPO|BECMG|FM|PROB
-        // and joined with newlines below
-        taf_text = taf.raw_text._text
+        taf_text = taf.raw_text._text.split(/(?=TEMPO|BECMG|FM|PROB)/)
       }
     }else{
       metar_text = ''
@@ -195,8 +193,8 @@ class AirportInfo extends React.Component {
     return(
       <div>
         <pre>
-          {metar_text}
-          <p>{taf_text}</p>
+          <p>{metar_text}</p>
+          <p>{taf_text.join("\n")}</p>
         </pre>
       </div>
     )
