@@ -81,7 +81,7 @@ class MetarRequest{
 
     let update_in = config.update_rate * 60 * 1000;
     console.log("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
-    //setTimeout(this.execute, 5 * 1000);
+    setTimeout(() => this.execute(), update_in);
   }
 }
 

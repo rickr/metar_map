@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = 4567; const https = require('https');
 const convert = require('xml-js');
+const os = require('os');
 
 const app = express();
 enableWs(app)
@@ -15,7 +16,7 @@ const config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request').MetarRequest
 const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
-const NeoPixel = require('./lib/neo_pixel')
+if(os.arch() != 'x64'){ const NeoPixel = require('./lib/neo_pixel') };
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -58,7 +59,7 @@ function sendMetarData(ws){
 
 // Begin fetching metars
 WeatherRequest.execute();
-NeoPixel.execute();
+if(os.arch() != 'x64' ){ NeoPixel.execute() }
 
 app.listen(port, () => console.log(`Metar Map listening on port ${port}!`))
 
