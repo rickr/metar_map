@@ -96,7 +96,6 @@ class Dashboard extends React.Component {
 
 class AirportRows extends React.Component{
   // Convert flight categories to a valid bulma css color class
-  // TODO Add low IFR
   flightCategoryToCSS(flightCategory){
     if(flightCategory === "VFR"){
       return 'is-success';
@@ -104,6 +103,8 @@ class AirportRows extends React.Component{
       return 'is-info';
     } else if(flightCategory === 'IFR'){
       return 'is-danger';
+    } else if(flightCategory === 'LIFR'){
+      return 'is-lifr';
     } else {
       return 'unknown-' + flightCategory;
     }
