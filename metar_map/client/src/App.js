@@ -14,8 +14,8 @@ class Dashboard extends React.Component {
   ws = new WebSocket('ws://localhost:4567/metar.ws');
 
   airportsPerRow = 7;
-  // FIXME make sure delay starts after last clicked
   cycleDelay = 10 * 1000;
+  afterClickCycleDelay = 20 * 1000;
   firstMessage = true;
 
   constructor(props){
@@ -27,19 +27,30 @@ class Dashboard extends React.Component {
       selectedAirport: null,
       airportComponents: [],
       currentIndex: 0,
-      lastUpdated: 0
+      lastUpdated: 0,
+      airportCycleTimer: null
     };
   };
 
-  updateSelectedAirport = (metar) => { this.setState({ selectedAirport: metar }); };
+  // When an airport is clicked display the information for that airport
+  updateSelectedAirport = (metar) => {
+    clearTimeout(this.state.airportCycleTimer);
+    let airportCycleTimer = setTimeout(this.cycleAirports, this.afterClickCycleDelay)
+    this.setState({
+      airportCycleTimer: airportCycleTimer,
+      selectedAirport: metar
+    })
+  };
 
   cycleAirports = () => {
     let nextIndex = this.state.currentIndex >= (this.state.metars.length - 1) ? 0 : this.state.currentIndex + 1
     this.setState({ currentIndex: nextIndex });
 
-    this.updateSelectedAirport(this.state.metars[this.state.currentIndex]);
-
-    setTimeout(this.cycleAirports, this.cycleDelay)
+    let airportCycleTimer = setTimeout(this.cycleAirports, this.cycleDelay)
+    this.setState({
+      airportCycleTimer: airportCycleTimer,
+      selectedAirport: this.state.metars[this.state.currentIndex]
+    })
   }
 
   componentDidMount() {
