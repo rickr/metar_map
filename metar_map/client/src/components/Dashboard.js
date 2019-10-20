@@ -2,8 +2,6 @@ import React from 'react';
 import '../css/App.css';
 
 class Dashboard extends React.Component {
-  //ws = new WebSocket('ws://localhost:4567/metar.ws');
-
   airportsPerRow = 7;
   cycleDelay = 10 * 1000;
   afterClickCycleDelay = 20 * 1000;
@@ -12,13 +10,9 @@ class Dashboard extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      airports: {},
-      metars: [],
-      metarCount: 0,
       selectedAirport: null,
       airportComponents: [],
       currentIndex: 0,
-      lastUpdated: 0,
       airportCycleTimer: null
     };
   };
@@ -34,42 +28,51 @@ class Dashboard extends React.Component {
   };
 
   cycleAirports = () => {
-    let nextIndex = this.state.currentIndex >= (this.state.metars.length - 1) ? 0 : this.state.currentIndex + 1
+    let nextIndex = this.state.currentIndex >= (this.props.metars.length - 1) ? 0 : this.state.currentIndex + 1
     this.setState({ currentIndex: nextIndex });
 
     let airportCycleTimer = setTimeout(this.cycleAirports, this.cycleDelay)
     this.setState({
       airportCycleTimer: airportCycleTimer,
-      selectedAirport: this.state.metars[this.state.currentIndex]
+      selectedAirport: this.props.metars[this.state.currentIndex]
     })
   }
 
   componentDidMount() {
-    if(this.props.ws){
-      this.props.ws.onmessage = (evt) => {
-        const data = JSON.parse(evt.data);
+    //if(this.props.ws){
+    //  this.props.ws.onmessage = (evt) => {
+    //    const data = JSON.parse(evt.data);
 
-        if(data.type === 'metar'){
-          console.log('RX metar message');
+    //    if(data.type === 'metar'){
+    //      console.log('RX metar message');
 
-          this.setState({ airports: data.payload,
-            metars: data.payload.metars.airports,
-            metarCount: data.payload.metars.airports.length,
-            lastUpdated: data.payload.metars.lastUpdated
-          })
+    //      this.setState({ airports: data.payload,
+    //        metars: data.payload.metars.airports,
+    //        metarCount: data.payload.metars.airports.length,
+    //        lastUpdated: data.payload.metars.lastUpdated
+    //      })
 
-          if(this.firstMessage){
-            this.firstMessage = false;
-            this.setState({
-              selectedAirport: data.payload.metars.airports[0]
-            })
-          }
-        } else {
-          console.log('Unknown message: ' + JSON.stringify(data));
-        }
-      }
+    //      if(this.firstMessage){
+    //        this.firstMessage = false;
+    //        this.setState({
+    //          selectedAirport: data.payload.metars.airports[0]
+    //        })
+    //      }
+    //    } else {
+    //      console.log('Unknown message: ' + JSON.stringify(data));
+    //    }
+    //  }
 
+    //}
+
+    if(this.props.metars.airports){
       this.cycleAirports();
+      if(this.firstMessage){
+        this.firstMessage = false;
+        this.setState({
+          selectedAirport: this.props.metars.airports[0]
+        })
+      }
     }
   }
 
@@ -81,10 +84,10 @@ class Dashboard extends React.Component {
   render(){
     return(
       <div>
-        <AirportRows metars={this.state.metars} airportRows={this.state.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
-        <CurrentTimes last_updated={new Date(this.state.lastUpdated)} />
+        <AirportRows metars={this.props.metars} airportRows={this.props.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
+        <CurrentTimes last_updated={new Date(this.props.lastUpdated)} />
 
-        <AirportInfo selectedAirport={this.state.selectedAirport} airports={this.state.airports}/>
+        <AirportInfo selectedAirport={this.state.selectedAirport} airports={this.props.airports}/>
       </div>
     );
   };
@@ -109,8 +112,7 @@ class AirportRows extends React.Component{
 
   render(){
     let items = [];
-    for(let i = 0; i < this.props.metars.length; i++){
-      let metar = this.props.metars[i];
+    this.props.metars.forEach((metar, _i) => {
       let airport = Object.values(metar.station_id);
       let flightCategoryCSS = metar.flight_category ? this.flightCategoryToCSS(metar.flight_category._text) : 'unknown-category';
       let rawText = Object.values(metar.raw_text);
@@ -125,7 +127,7 @@ class AirportRows extends React.Component{
                  />
 
       items.push(item)
-    }
+    });
 
     let rows = [];
     for(let i = 0; i < this.props.airportRows; i++){

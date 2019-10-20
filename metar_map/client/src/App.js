@@ -59,7 +59,7 @@ class App extends React.Component{
     this.state = {
       ws: null,
       airports: null,
-      metars: null,
+      metars: [],
       metarCount: null,
       lastUpdated: null
     };
@@ -69,7 +69,6 @@ class App extends React.Component{
     let ws = new WebSocketClient(this);
     this.setState({ ws: ws })
     ws.subscribe();
-
   }
 
   render = () => {
@@ -82,7 +81,15 @@ class App extends React.Component{
           </ul>
         </div>
         <Switch>
-            <Route exact path="/" render={(props) => <Dashboard ws={this.state.ws} {...props} />}>
+            <Route exact path="/"
+              render={(props) =>
+                <Dashboard ws={this.state.ws}
+                           airports={this.state.airports}
+                           metars={this.state.metars}
+                           metarCount={this.state.metarCount}
+                           lastUpdate={this.state.lastUpdated}
+                />
+              }>
             </Route>
             <Route path="/logs">
               <Logs />
@@ -92,6 +99,5 @@ class App extends React.Component{
     )
   }
 }
-
 
 export default App;
