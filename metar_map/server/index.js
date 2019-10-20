@@ -23,23 +23,16 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.ws('/metar.ws', (ws, req) => {
-  //sendMetarData(ws);
+  sendMetarData(ws);
 
   ws.on('message', (message) => {
     switch(message){
       case "metars":
         console.log("metars RX");
-        sendMetarData(ws);
-        break;
       case "hello":
         console.log("hello RX");
-        break;
       case "logs":
         console.log("log message RX");
-        break;
-      default:
-        console.log("RX unknown message '" + message + "'");
-        break;
     }
   })
 })
@@ -49,22 +42,22 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 
 function sendMetarData(ws){
-  console.log("Sending metar data");
-  if(!ws){ console.log("WS is null"); return false }
-
   if(ws.readyState === 1){
     let payload = WeatherRequest.as_json();
 
     if(payload.has_errors){
-      ws.send(JSON.stringify({
-        type: 'error',
-        payload: payload
-      }));
+      ws.send(JSON.stringify(
+        {
+          type: 'error',
+          payload: payload
+        }
+      ));
     } else {
-      ws.send(JSON.stringify({
-        type: 'metars',
-        payload: payload
-      }));
+      ws.send(JSON.stringify(
+        { type: 'metar',
+          payload: payload
+        }
+      ));
     }
 
     setTimeout(sendMetarData, 10 * 1000, ws)
