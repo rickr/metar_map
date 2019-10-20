@@ -28,8 +28,8 @@ led:
 # The order of this list must match the way the LEDs are
 # wired otherwise you will get incorrect results
 airports:
-  - KFWN
   - KSMQ
+  - KFWN
   - KMMU
   - KLDJ
   - KEWR
@@ -37,16 +37,16 @@ airports:
   - KTEB
   - KLGA
   - KJFK
-  - KHPN
-  - KDXR
   - KFRG
   - KISP
-  - KBDR
-  - KHVN
   - KHWV
   - KFOK
-  - KSNC
   - KHTO
-  - KGON
   - KWST
+  - KGON
+  - KSNC
+  - KHVN
+  - KBDR
+  - KDXR
+  - KHPN
 ###############################################################
