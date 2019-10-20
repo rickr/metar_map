@@ -25,7 +25,16 @@ app.use(cors());
 app.ws('/metar.ws', (ws, req) => {
   sendMetarData(ws);
 
-  ws.on('message', (message) => { console.log("Client connected"); })
+  ws.on('message', (message) => {
+    switch(message){
+      case "metars":
+        console.log("metars RX");
+      case "hello":
+        console.log("hello RX");
+      case "logs":
+        console.log("log message RX");
+    }
+  })
 })
 
 // Serve our production build
