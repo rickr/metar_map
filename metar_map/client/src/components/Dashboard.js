@@ -26,9 +26,15 @@ class Dashboard extends React.Component {
     })
   };
 
+  // FIXME this should show the first airport immediately
   cycleAirports = () => {
-    if(!this.state.selectedAirport && this.props.metars.airports){
-      this.setState({ selectedAirport: this.props.metars.airports[0] })
+    if(!this.state.selectedAirport){
+      if(!this.props.metars){
+        // If we dont have any airports loaded keep checking
+        // at a short interval until we do
+        setTimeout(this.cycleAirports, 100);
+        return false
+      }
     }
 
     let nextIndex = this.state.currentIndex >= (this.props.metars.length - 1) ? 0 : this.state.currentIndex + 1
@@ -48,7 +54,6 @@ class Dashboard extends React.Component {
   // FIXME cancel currentTimes timers when unmounting
   componentWillUnmount = () => {
   }
-
 
   render(){
     return(
