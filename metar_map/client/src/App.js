@@ -9,15 +9,67 @@ import {
     Link
 } from "react-router-dom";
 
+// WebSocketClient handles all aspects of our websocket and its data
+// and updates the state of our app
+class WebSocketClient {
+  constructor(App){
+    this.App = App
+    this.messageTypes = ['metars', 'logs'];
+    this.connect();
+  };
+
+  connect = () => {
+    console.log("Opening WS");
+    this.ws = new WebSocket('ws://localhost:4567/metar.ws')
+  }
+
+  subscribe = () => {
+    this.ws.onopen = () => {
+      console.log('Connected');
+      this.messageTypes.forEach((messageType) => { this.ws.send(messageType) });
+    }
+
+    this.ws.onmessage = (evt) => { this.handleMessage(JSON.parse(evt.data)) }
+  }
+
+  handleMessage = (message) => {
+    switch(message.type){
+      case "metars":
+        console.log('RX METAR');
+        this.App.setState({
+          airports: message.payload,
+          metars: message.payload.metars.airports,
+          metarCount: message.payload.metars.airports.length,
+          lastUpdated: message.payload.metars.lastUpdated
+        });
+        break;
+      case "logs":
+        console.log('RX LOG');
+        break;
+      default:
+        console.log('Unknown message type: ' + message);
+        break;
+    }
+  }
+}
+
 class App extends React.Component{
   constructor(props){
     super(props)
-    this.state = { ws: null };
+    this.state = {
+      ws: null,
+      airports: null,
+      metars: null,
+      metarCount: null,
+      lastUpdated: null
+    };
   }
 
   componentDidMount = () => {
-    console.log("Opening WS");
-    this.setState({ ws: new WebSocket('ws://localhost:4567/metar.ws') });
+    let ws = new WebSocketClient(this);
+    this.setState({ ws: ws })
+    ws.subscribe();
+
   }
 
   render = () => {
