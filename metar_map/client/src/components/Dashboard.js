@@ -5,7 +5,6 @@ class Dashboard extends React.Component {
   airportsPerRow = 7;
   cycleDelay = 10 * 1000;
   afterClickCycleDelay = 20 * 1000;
-  firstMessage = true;
 
   constructor(props){
     super(props);
@@ -28,6 +27,10 @@ class Dashboard extends React.Component {
   };
 
   cycleAirports = () => {
+    if(!this.state.selectedAirport && this.props.metars.airports){
+      this.setState({ selectedAirport: this.props.metars.airports[0] })
+    }
+
     let nextIndex = this.state.currentIndex >= (this.props.metars.length - 1) ? 0 : this.state.currentIndex + 1
     this.setState({ currentIndex: nextIndex });
 
@@ -39,41 +42,7 @@ class Dashboard extends React.Component {
   }
 
   componentDidMount() {
-    //if(this.props.ws){
-    //  this.props.ws.onmessage = (evt) => {
-    //    const data = JSON.parse(evt.data);
-
-    //    if(data.type === 'metar'){
-    //      console.log('RX metar message');
-
-    //      this.setState({ airports: data.payload,
-    //        metars: data.payload.metars.airports,
-    //        metarCount: data.payload.metars.airports.length,
-    //        lastUpdated: data.payload.metars.lastUpdated
-    //      })
-
-    //      if(this.firstMessage){
-    //        this.firstMessage = false;
-    //        this.setState({
-    //          selectedAirport: data.payload.metars.airports[0]
-    //        })
-    //      }
-    //    } else {
-    //      console.log('Unknown message: ' + JSON.stringify(data));
-    //    }
-    //  }
-
-    //}
-
-    if(this.props.metars.airports){
-      this.cycleAirports();
-      if(this.firstMessage){
-        this.firstMessage = false;
-        this.setState({
-          selectedAirport: this.props.metars.airports[0]
-        })
-      }
-    }
+    this.cycleAirports();
   }
 
   // FIXME cancel currentTimes timers when unmounting
@@ -108,7 +77,6 @@ class AirportRows extends React.Component{
       return 'unknown-' + flightCategory;
     }
   };
-
 
   render(){
     let items = [];
@@ -201,7 +169,7 @@ class AirportInfo extends React.Component {
     }
 
     return(
-      <div>
+      <div className='has-text-centered'>
         <pre>
           <p>{metar_text}</p>
           <p>{taf_text.join("\n")}</p>
@@ -220,11 +188,7 @@ class CurrentTimes extends React.Component {
   }
 
   componentDidMount() {
-    setInterval( () => {
-      this.setState({
-        currentTime : new Date()
-      })
-    },1000)
+    setInterval(() => { this.setState({ currentTime : new Date() }) },1000)
   }
 
   metarAgeTime = () => {

@@ -87,7 +87,7 @@ class App extends React.Component{
                            airports={this.state.airports}
                            metars={this.state.metars}
                            metarCount={this.state.metarCount}
-                           lastUpdate={this.state.lastUpdated}
+                           lastUpdated={this.state.lastUpdated}
                 />
               }>
             </Route>
