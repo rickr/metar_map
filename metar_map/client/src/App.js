@@ -45,6 +45,7 @@ class WebSocketClient {
         break;
       case "logs":
         console.log('RX LOG');
+        this.App.setState({ logLines: message.payload, });
         break;
       default:
         console.log('Unknown message type: ' + message);
@@ -61,7 +62,8 @@ class App extends React.Component{
       airports: null,
       metars: [],
       metarCount: null,
-      lastUpdated: null
+      lastUpdated: null,
+      logLines: []
     };
   }
 
@@ -92,7 +94,7 @@ class App extends React.Component{
               }>
             </Route>
             <Route path="/logs">
-              <Logs />
+              <Logs logLines={this.state.logLines}/>
             </Route>
         </Switch>
       </Router>

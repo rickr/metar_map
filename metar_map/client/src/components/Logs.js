@@ -9,6 +9,7 @@ class Logs extends React.Component {
     return(
       <div>
         <h1>Logs</h1>
+        <pre>{this.props.logLines.values}</pre>
       </div>
     );
   };
