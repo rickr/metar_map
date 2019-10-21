@@ -9,15 +9,68 @@ import {
     Link
 } from "react-router-dom";
 
+// WebSocketClient handles all aspects of our websocket and its data
+// and updates the state of our app
+class WebSocketClient {
+  constructor(App){
+    this.App = App
+    this.messageTypes = ['metars', 'logs'];
+    this.connect();
+  };
+
+  connect = () => {
+    console.log("Opening WS");
+    this.ws = new WebSocket('ws://localhost:4567/metar.ws')
+  }
+
+  subscribe = () => {
+    this.ws.onopen = () => {
+      console.log('Connected');
+      this.messageTypes.forEach((messageType) => { this.ws.send(messageType) });
+    }
+
+    this.ws.onmessage = (evt) => { this.handleMessage(JSON.parse(evt.data)) }
+  }
+
+  handleMessage = (message) => {
+    switch(message.type){
+      case "metars":
+        console.log('RX METAR');
+        this.App.setState({
+          airports: message.payload,
+          metars: message.payload.metars.airports,
+          metarCount: message.payload.metars.airports.length,
+          lastUpdated: message.payload.metars.lastUpdated
+        });
+        break;
+      case "logs":
+        console.log('RX LOG');
+        this.App.setState({ logLines: message.payload, });
+        break;
+      default:
+        console.log('Unknown message type: ' + message);
+        break;
+    }
+  }
+}
+
 class App extends React.Component{
   constructor(props){
     super(props)
-    this.state = { ws: null };
+    this.state = {
+      ws: null,
+      airports: null,
+      metars: [],
+      metarCount: null,
+      lastUpdated: null,
+      logLines: []
+    };
   }
 
   componentDidMount = () => {
-    console.log("Opening WS");
-    this.setState({ ws: new WebSocket('ws://localhost:4567/metar.ws') });
+    let ws = new WebSocketClient(this);
+    this.setState({ ws: ws })
+    ws.subscribe();
   }
 
   render = () => {
@@ -30,16 +83,23 @@ class App extends React.Component{
           </ul>
         </div>
         <Switch>
-            <Route exact path="/" render={(props) => <Dashboard ws={this.state.ws} {...props} />}>
+            <Route exact path="/"
+              render={(props) =>
+                <Dashboard ws={this.state.ws}
+                           airports={this.state.airports}
+                           metars={this.state.metars}
+                           metarCount={this.state.metarCount}
+                           lastUpdated={this.state.lastUpdated}
+                />
+              }>
             </Route>
             <Route path="/logs">
-              <Logs />
+              <Logs logLines={this.state.logLines}/>
             </Route>
         </Switch>
       </Router>
     )
   }
 }
-
 
 export default App;
