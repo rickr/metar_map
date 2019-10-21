@@ -59,7 +59,7 @@ class App extends React.Component{
     super(props)
     this.state = {
       ws: null,
-      airports: null,
+      airports: [],
       metars: [],
       metarCount: null,
       lastUpdated: null,

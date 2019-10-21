@@ -93,21 +93,23 @@ sendLogData = (ws) => {
   console.log(this.logFile);
 
   logger.info("Sending log data");
+  const latestLines = spawn('tail', ['-100', this.logFile]);
+  latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
+
+  logger.info(logLines.length);
+
+  const tail = spawn('tail', ['-F', this.logFile]);
 
   if(!ws){ logger.info("WS is null"); return false }
   if(ws.readyState === 1){
-    const latestLines = spawn('tail', ['-100', this.logFile]);
-    latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
-
-    logger.info(logLines.length);
-
-    const tail = spawn('tail', ['-F', this.logFile]);
     tail.stdout.on('data', (line) => {
       logLines.store(line.toString());
-      ws.send(JSON.stringify({
-        type: "logs",
-        payload: logLines
-      }));
+      if(ws.readyState === 1){
+        ws.send(JSON.stringify({
+          type: "logs",
+          payload: logLines
+        }));
+      }
     })
   }
 }
