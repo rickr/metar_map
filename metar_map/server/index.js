@@ -11,6 +11,7 @@ const os = require('os');
 const fs = require('fs');
 const { spawn } = require('child_process')
 const readline = require('readline');
+const winston = require('winston');
 
 const app = express();
 enableWs(app)
@@ -25,6 +26,28 @@ if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
 
 app.use(bodyParser.json());
 app.use(cors());
+
+this.logFile = '/var/log/metar_map.log'
+const errorLogFile = '/var/log/metar_map.error.log'
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'server' },
+  transports: [
+    // - Write to all logs with level `info` and below to `combined.log` 
+    // - Write all logs error (and below) to `error.log`.
+    new winston.transports.File({ filename: errorLogFile, level: 'error' }),
+    new winston.transports.File({ filename: this.logFile })
+  ]
+});
+
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
 
 function Cache(maxLength) {
   this.values = [];
@@ -45,18 +68,18 @@ app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (message) => {
     switch(message){
       case "metars":
-        console.log("metars RX");
+        logger.info("metars RX");
         sendMetarData(ws);
         break;
       case "hello":
-        console.log("hello RX");
+        logger.info("hello RX");
         break;
       case "logs":
-        console.log("log message RX");
+        logger.info("log message RX");
         sendLogData(ws);
         break;
       default:
-        console.log("RX unknown message '" + message + "'");
+        logger.info("RX unknown message '" + message + "'");
         break;
     }
   })
@@ -65,20 +88,20 @@ app.ws('/metar.ws', (ws, req) => {
 // Serve our production build
 app.use(express.static(path.join(__dirname, '../client/build')));
 
-function sendLogData(ws){
-  const logFile = '/var/log/syslog';
+sendLogData = (ws) => {
   let logLines = new Cache(100)
+  console.log(this.logFile);
 
-  console.log("Sending log data");
+  logger.info("Sending log data");
 
-  if(!ws){ console.log("WS is null"); return false }
+  if(!ws){ logger.info("WS is null"); return false }
   if(ws.readyState === 1){
-    const latestLines = spawn('tail', ['-100', logFile]);
+    const latestLines = spawn('tail', ['-100', this.logFile]);
     latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
 
-    console.log(logLines.length);
+    logger.info(logLines.length);
 
-    const tail = spawn('tail', ['-F', logFile]);
+    const tail = spawn('tail', ['-F', this.logFile]);
     tail.stdout.on('data', (line) => {
       logLines.store(line.toString());
       ws.send(JSON.stringify({
@@ -90,8 +113,8 @@ function sendLogData(ws){
 }
 
 function sendMetarData(ws){
-  console.log("Sending metar data");
-  if(!ws){ console.log("WS is null"); return false }
+  logger.info("Sending metar data");
+  if(!ws){ logger.info("WS is null"); return false }
 
   if(ws.readyState === 1){
     let payload = WeatherRequest.as_json();
@@ -110,7 +133,7 @@ function sendMetarData(ws){
 
     setTimeout(sendMetarData, 10 * 1000, ws)
   }else{
-    console.log("Unknown ready state: " + ws.readyState);
+    logger.info("Unknown ready state: " + ws.readyState);
   }
 }
 
@@ -119,5 +142,5 @@ function sendMetarData(ws){
 WeatherRequest.execute();
 if(os.arch() == 'arm' ){ NeoPixel.execute() }
 
-app.listen(port, () => console.log(`Metar Map listening on port ${port}!`))
+app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
 
