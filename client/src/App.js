@@ -69,17 +69,24 @@ class App extends React.Component{
 
   componentDidMount = () => {
     let ws = new WebSocketClient(this);
-    this.setState({ ws: ws })
+    this.setState({
+      ws: ws,
+      activeTab: 'dashboard'
+    })
     ws.subscribe();
   }
+
+  isActive = (tabName) => { if(tabName == this.state.activeTab){ return 'is-active' } }
+
+  makeActive = (tabName) => { this.setState({activeTab: tabName}); }
 
   render = () => {
     return(
       <Router>
-        <div>
+        <div className="tabs">
           <ul>
-            <li><Link to="/">Dashboard</Link></li>
-            <li><Link to="/logs">Logs</Link></li>
+            <li className={this.isActive('dashboard')}><Link onClick={() => this.makeActive('dashboard')} to="/">Dashboard</Link></li>
+            <li className={this.isActive('logs')}><Link onClick={() => this.makeActive('logs')} to="/logs">Logs</Link></li>
           </ul>
         </div>
         <Switch>
