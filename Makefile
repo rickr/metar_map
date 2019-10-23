@@ -7,3 +7,6 @@ release:
 install-systemd:
 	cp -v os/metar-map.service /lib/systemd/system/metar-map.service && systemctl daemon-reload
 
+install-systemd:
+	cp -v os/metar-map.service /lib/systemd/system/metar-map.service && systemctl daemon-reload
+
