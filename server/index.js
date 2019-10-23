@@ -23,24 +23,10 @@ const WeatherRequest = require('./lib/metar_request').WeatherRequest
 let NeoPixel = null
 if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
 const logger = require('./lib/logger')('server');
+const Cache = require('./lib/cache');
 
 app.use(bodyParser.json());
 app.use(cors());
-
-function Cache(maxLength) {
-  this.values = [];
-
-  this.store = function(data) {
-    if(this.values.length >= maxLength) {
-      this.getLast();
-    }
-    return this.values.push(data);
-  }
-
-  this.getLast = function() {
-    return this.values.splice(0,1)[0];
-  }
-}
 
 app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (message) => {
