@@ -19,8 +19,8 @@ class WebSocketClient {
   };
 
   connect = () => {
-    console.log("Opening WS");
-    this.ws = new WebSocket('ws://localhost:4567/metar.ws')
+    console.log("Opening WS to " + window.location.host);
+    this.ws = new WebSocket('ws://' + window.location.host + '/metar.ws')
   }
 
   subscribe = () => {
@@ -76,7 +76,7 @@ class App extends React.Component{
     ws.subscribe();
   }
 
-  isActive = (tabName) => { if(tabName == this.state.activeTab){ return 'is-active' } }
+  isActive = (tabName) => { if(tabName === this.state.activeTab){ return 'is-active' } }
 
   makeActive = (tabName) => { this.setState({activeTab: tabName}); }
 

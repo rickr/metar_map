@@ -2,9 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
 const convert = require('xml-js');
-const config = require('./config');
 const request = require('request');
 const querystring = require('querystring');
+
+const config = require('./config');
+const logger = require('./logger')('MetarRequest');
 
 class MetarRequest{
   static params(){
@@ -54,7 +56,7 @@ class MetarRequest{
 
 
     if(dataJSON.response.data == null){
-      console.log("The data looks invalid - aborting (check '" + this.fileName() + "')");
+      logger.info("The data looks invalid - aborting (check '" + this.fileName() + "')");
       return { has_errors: true, errors: dataJSON.response.errors }
     }
 
@@ -73,17 +75,17 @@ class MetarRequest{
 
   static execute(){
     const currentTime = Math.floor(Date.now() / 1000);
-    console.log("   Updating " + this.requestName() + " at " + currentTime);
+    logger.info("   Updating " + this.requestName() + " at " + currentTime);
 
     request(this.url(), (error, response, body) => {
-      console.log("Writing " + this.requestName() + " to " + this.fileName());
+      logger.info("Writing " + this.requestName() + " to " + this.fileName());
       fs.writeFile(this.fileName(), body, (err) => {
-        if(err){ return(console.log(err)) }
+        if(err){ return(logger.info(err)) }
       })
     });
 
     let update_in = config.update_rate * 60 * 1000;
-    console.log("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
+    logger.info("Next " + this.requestName() +" update at " + (currentTime + update_in) + " (" + config.update_rate + " mins)");
     setTimeout(() => this.execute(), update_in);
   }
 }
