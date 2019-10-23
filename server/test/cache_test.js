@@ -1,4 +1,4 @@
-const assert = require('assert')
+var assert = require('chai').assert;
 const Cache = require('../lib/cache');
 
 describe('Const', function(){
@@ -6,6 +6,7 @@ describe('Const', function(){
     let cache = new Cache(5)
     cache.store(1)
 
+    assert.lengthOf(cache.values, 1);
     assert.deepEqual(cache.values, [ 1 ])
   });
 
@@ -16,6 +17,7 @@ describe('Const', function(){
     cache.store(3)
     cache.store(4)
 
+    assert.lengthOf(cache.values, 3);
     assert.deepEqual(cache.values, [ 2, 3, 4 ])
   });
 })
