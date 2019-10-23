@@ -3,6 +3,8 @@
 update_rate: 10
 metar_file: /tmp/metar
 taf_file: /tmp/taf
+log_file: /var/log/metar_map.log
+error_log_file: /var/log/metar_map.error.log
 ###############################################################
 
 ### LED Settings #############################################

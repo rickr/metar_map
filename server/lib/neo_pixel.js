@@ -3,6 +3,7 @@ const pixel = require("node-pixel");
 const Raspi = require("raspi-io").RaspiIO;
 
 const config = require('./config');
+const logger = require('./logger')('NeoPixel');
 const MetarRequest = require('./metar_request').MetarRequest;
 
 class NeoPixel{
@@ -21,7 +22,7 @@ class NeoPixel{
       });
 
       function updateMap(){
-        //console.log("Updating LEDs");
+        logger.info("Updating LEDs");
         try {
           const metars = MetarRequest.as_json();
           if(!metars.airports){ throw 'Airports not fetched' }
@@ -48,7 +49,7 @@ class NeoPixel{
                 break;
             }
 
-            console.log("Updating " + airport_id + " (" + i + ") to " + skyCondition + " (" + ledColor + ")");
+            logger.debug("Updating " + airport_id + " (" + i + ") to " + skyCondition + " (" + ledColor + ")");
             if(ledColor){
               strip.pixel(i).color(ledColor);
             } else {
@@ -58,7 +59,7 @@ class NeoPixel{
           })
           strip.show();
         } catch(err){
-          console.log("Failed to update LEDs: " + err);
+          logger.info("Failed to update LEDs: " + err);
           strip.show();
         } finally {
           setTimeout(updateMap, 2 * 1000)

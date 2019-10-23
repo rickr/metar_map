@@ -85,7 +85,7 @@ class AirportRows extends React.Component{
 
   render(){
     let items = [];
-    if(this.props.metars.length == 0){ return false }
+    if(this.props.metars.length === 0){ return false }
     this.props.metars.forEach((metar, _i) => {
       if(!metar){ return }
       let airport = Object.values(metar.station_id);

@@ -11,7 +11,6 @@ const os = require('os');
 const fs = require('fs');
 const { spawn } = require('child_process')
 const readline = require('readline');
-const winston = require('winston');
 
 const app = express();
 enableWs(app)
@@ -23,31 +22,10 @@ const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
 let NeoPixel = null
 if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
+const logger = require('./lib/logger')('server');
 
 app.use(bodyParser.json());
 app.use(cors());
-
-this.logFile = '/var/log/metar_map.log'
-const errorLogFile = '/var/log/metar_map.error.log'
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'server' },
-  transports: [
-    // - Write to all logs with level `info` and below to `combined.log` 
-    // - Write all logs error (and below) to `error.log`.
-    new winston.transports.File({ filename: errorLogFile, level: 'error' }),
-    new winston.transports.File({ filename: this.logFile })
-  ]
-});
-
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }));
-}
 
 function Cache(maxLength) {
   this.values = [];
@@ -90,7 +68,6 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 sendLogData = (ws) => {
   let logLines = new Cache(100)
-  console.log(this.logFile);
 
   logger.info("Sending log data");
   const latestLines = spawn('tail', ['-100', this.logFile]);
@@ -133,6 +110,7 @@ function sendMetarData(ws){
       }));
     }
 
+    // Make this configurable
     setTimeout(sendMetarData, 10 * 1000, ws)
   }else{
     logger.info("Unknown ready state: " + ws.readyState);
