@@ -64,7 +64,7 @@ app.ws('/metar.ws', (ws, req) => {
 })
 
 // Serve our production build
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../client/build', 'index.html')));
 
 sendLogData = (ws) => {
   let logLines = new Cache(100)
