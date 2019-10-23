@@ -48,7 +48,7 @@ class WebSocketClient {
         this.App.setState({ logLines: message.payload, });
         break;
       default:
-        console.log('Unknown message type: ' + message);
+        console.log('Unknown message type: ' + JSON.stringify(message));
         break;
     }
   }
