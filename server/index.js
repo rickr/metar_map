@@ -70,12 +70,12 @@ sendLogData = (ws) => {
   let logLines = new Cache(100)
 
   logger.info("Sending log data");
-  const latestLines = spawn('tail', ['-100', this.logFile]);
+  const latestLines = spawn('tail', ['-100', config.log_file]);
   latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
 
   logger.info(logLines.length);
 
-  const tail = spawn('tail', ['-F', this.logFile]);
+  const tail = spawn('tail', ['-F', config.log_file]);
 
   if(!ws){ logger.info("WS is null"); return false }
   if(ws.readyState === 1){
