@@ -82,7 +82,7 @@ function sendMetarData(ws){
   if(!ws){ logger.info("WS is null"); return false }
 
   if(ws.readyState === 1){
-    let payload = WeatherRequest.as_json();
+    let payload = WeatherRequest.json();
 
     if(payload.has_errors){
       ws.send(JSON.stringify({
@@ -105,7 +105,7 @@ function sendMetarData(ws){
 
 
 // Begin fetching metars
-WeatherRequest.execute();
+WeatherRequest.call();
 if(os.arch() == 'arm' ){ NeoPixel.execute() }
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
