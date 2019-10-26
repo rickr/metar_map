@@ -124,6 +124,7 @@ class AirportRow extends React.Component {
   }
 }
 
+// FIXME the box should cursor: pointer
 class Airport extends React.Component {
   sendAirportData = () => {
     this.props.updateSelectedAirport(this.props.metar);
