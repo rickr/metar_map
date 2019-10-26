@@ -111,6 +111,7 @@ class TafRequest extends MetarRequest{
 //   * Json()
 //       - The data from the request as a javascript object (maybe this should be renamed to data()?)
 class WeatherRequest{
+  // FIXME have the request types passed in
   static call(){
     this.callEvery(MetarRequest)
     this.callEvery(TafRequest)
