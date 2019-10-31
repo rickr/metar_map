@@ -1,32 +1,20 @@
-const five = require("johnny-five");
-const pixel = require("node-pixel");
-const Raspi = require("raspi-io").RaspiIO;
-
+const os = require('os');
 const config = require('./config');
-const logger = require('./logger')('NeoPixel');
+const logger = require('./logger')('MapLightController');
 const MetarRequest = require('./metar_request').MetarRequest;
 
-class NeoPixel{
+class MapLightController{
   constructor(){
-    this.board = new five.Board({
-      io: new Raspi(),
-      repl: false
-    });
-
-    this.strip = new pixel.Strip({
-      color_order: pixel.COLOR_ORDER.GRB,
-      board: this,
-      controller: "I2CBACKPACK",
-      strips: [config.airports.length]
-    });
+    this.updateInterval = 10 //seconds
   }
 
-  call(){
-    this.board.on("ready", () => {
-      this.strip.on("ready", () => {
-        this.updateMap();
-      });
-    });
+  static create(){
+    if(os.arch() == 'arm'){
+      // FIXME - check our config for the driver
+      console.log("ARM platform, get the right driver");
+    } else{
+      return new TestMapLightController()
+    }
   }
 
   skyConditionToColor(skyCondition){
@@ -48,14 +36,13 @@ class NeoPixel{
     }
   }
 
-
   updateMap(){
     logger.info("Updating LEDs");
     try {
-      const metars = MetarRequest.as_json();
+      const metars = MetarRequest.json();
       if(!metars.airports){ throw 'Airports not fetched' }
 
-      config.airports.forEach(function(airport_id, i){
+      config.airports.forEach((airport_id, i) => {
         let airport = metars.airports[i]
         let skyCondition = null;
 
@@ -65,20 +52,39 @@ class NeoPixel{
         logger.debug("Updating " + airport_id + " (" + i + ") to " + skyCondition + " (" + ledColor + ")");
 
         if(ledColor){
-          strip.pixel(i).color(ledColor);
+          this.setColor(i, ledColor)
         } else {
           //strip.pixel(i).off();
         }
 
       })
-      strip.show();
+      this.sendToLEDs();
     } catch(err){
       logger.info("Failed to update LEDs: " + err);
-      strip.show();
     } finally {
-      setTimeout(updateMap, 2 * 1000)
+      setTimeout(() => { this.updateMap() }, this.updateInterval * 1000)
     }
   }
 }
 
-module.exports = NeoPixel
+class TestMapLightController extends MapLightController{
+  constructor(){
+    super();
+    // Board and strip setup
+  }
+
+  sendToLEDs(){
+    console.log('strip.show()');
+    //strip.show();
+  }
+
+  setColor(i, ledColor){
+    console.log('Updating index ' + i + ' to color ' + ledColor);
+    //strip.pixel(i).color(ledColor);
+  }
+
+}
+
+let m = MapLightController.create()
+m.updateMap();
+module.exports = MapLightController
