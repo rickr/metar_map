@@ -28,22 +28,46 @@ const Cache = require('./lib/cache');
 app.use(bodyParser.json());
 app.use(cors());
 
+class Message{
+  constructor(message){
+    this.parsedMessage = JSON.parse(message)
+    this.type = Object.keys(this.parsedMessage)[0]
+    this.payload = Object.values(this.parsedMessage)[0]
+  }
+}
+
 app.ws('/metar.ws', (ws, req) => {
-  ws.on('message', (message) => {
-    switch(message){
-      case "metars":
-        logger.info("metars RX");
-        sendMetarData(ws);
+  ws.on('message', (msg) => {
+    const message = new Message(msg)
+
+    switch(message.type){
+      case "subscribe":
+        switch(message.payload){
+          case "metars":
+            logger.info("metars RX");
+            sendMetarData(ws);
+            break;
+          case "logs":
+            logger.info("log message RX");
+            sendLogData(ws);
+            break;
+        }
         break;
-      case "hello":
-        logger.info("hello RX");
-        break;
-      case "logs":
-        logger.info("log message RX");
-        sendLogData(ws);
+      case "leds":
+        switch(message.payload){
+          case true:
+            logger.info("ledState on");
+            break;
+          case false:
+            logger.info("ledState off");
+            break;
+          default:
+            logger.info("Unknown leds message: " + msg);
+            break;
+        }
         break;
       default:
-        logger.info("RX unknown message '" + message + "'");
+        logger.info("RX unknown message type'" + msg + "'");
         break;
     }
   })
@@ -58,8 +82,6 @@ sendLogData = (ws) => {
   logger.info("Sending log data");
   const latestLines = spawn('tail', ['-100', config.log_file]);
   latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
-
-  logger.info(logLines.length);
 
   const tail = spawn('tail', ['-F', config.log_file]);
 
@@ -103,10 +125,13 @@ function sendMetarData(ws){
   }
 }
 
-
 // Begin fetching metars
 WeatherRequest.call();
-if(os.arch() == 'arm' ){ NeoPixel.execute() }
+
+if(os.arch() == 'arm' ){
+  const neoPixel = new NeoPixel();
+  neoPixel.call();
+}
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
 

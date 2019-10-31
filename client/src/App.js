@@ -2,6 +2,7 @@ import React from 'react';
 import './css/App.css';
 import Dashboard from './components/Dashboard';
 import Logs from './components/Logs';
+import Tools from './components/Tools';
 import {
     BrowserRouter as Router,
     Switch,
@@ -26,11 +27,13 @@ class WebSocketClient {
   subscribe = () => {
     this.ws.onopen = () => {
       console.log('Connected');
-      this.messageTypes.forEach((messageType) => { this.ws.send(messageType) });
+      this.messageTypes.forEach((messageType) => { this.send({subscribe: messageType}) });
     }
 
     this.ws.onmessage = (evt) => { this.handleMessage(JSON.parse(evt.data)) }
   }
+
+  send = (message) => { this.ws.send(JSON.stringify(message)) }
 
   handleMessage = (message) => {
     switch(message.type){
@@ -87,6 +90,7 @@ class App extends React.Component{
           <ul>
             <li className={this.isActive('dashboard')}><Link onClick={() => this.makeActive('dashboard')} to="/">Dashboard</Link></li>
             <li className={this.isActive('logs')}><Link onClick={() => this.makeActive('logs')} to="/logs">Logs</Link></li>
+            <li className={this.isActive('tools')}><Link onClick={() => this.makeActive('tools')} to="/tools">Tools</Link></li>
           </ul>
         </div>
         <Switch>
@@ -102,6 +106,9 @@ class App extends React.Component{
             </Route>
             <Route path="/logs">
               <Logs logLines={this.state.logLines}/>
+            </Route>
+            <Route path="/tools">
+              <Tools ws={this.state.ws}/>
             </Route>
         </Switch>
       </Router>
