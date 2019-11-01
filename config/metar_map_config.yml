@@ -5,21 +5,24 @@ metar_file: /tmp/metar
 taf_file: /tmp/taf
 log_file: /var/log/metar_map.log
 error_log_file: /var/log/metar_map.error.log
+
+# Which library to use to control our neopixels
+#   [node-pixel] | ws281x-native
+driver: 'node-pixel'
 ###############################################################
 
-### LED Settings #############################################
-# LED Brightness
 
+
+### LED Settings #############################################
 # LED Colors for various conditions.
-# All colors are an array of R, G, B values.
+# All colors are a string of HTML style hex colors (eg #ffffff)
 led:
   brightness: 10
   colors:
     vfr: '#04a60e'
     marginal: '#032ef1'
-    ifr: '#c40000'
+    ifr: '#c40001'
 ###############################################################
-
 
 
 
@@ -28,26 +31,8 @@ led:
 #
 # The order of this list must match the way the LEDs are
 # wired otherwise you will get incorrect results
-airports:
-  - KFWN
-  - KSMQ
-  - KMMU
-  - KLDJ
-  - KEWR
-  - KCDW
-  - KTEB
-  - KLGA
-  - KJFK
-  - KHPN
-  - KDXR
-  - KFRG
-  - KISP
-  - KBDR
-  - KHVN
-  - KHWV
-  - KFOK
-  - KSNC
-  - KHTO
-  - KGON
-  - KWST
+#
+# airports:
+#   - KFWN
+#   - KSMQ
 ###############################################################

@@ -13,6 +13,7 @@ class MapLightController{
       // FIXME - check our config for the driver
       console.log("ARM platform, get the right driver");
     } else{
+      console.log(config.driver);
       return new TestMapLightController()
     }
   }
@@ -85,6 +86,8 @@ class TestMapLightController extends MapLightController{
 
 }
 
+
 let m = MapLightController.create()
 m.updateMap();
+
 module.exports = MapLightController
