@@ -1,6 +1,5 @@
 const os = require('os');
 const config = require('./config');
-const logger = require('./logger')('MapLightController');
 const MetarRequest = require('./metar_request').MetarRequest;
 
 class MapLightController{
@@ -13,10 +12,11 @@ class MapLightController{
       // FIXME - check our config for the driver
       console.log("ARM platform, get the right driver");
     } else{
-      console.log(config.driver);
       return new TestMapLightController()
     }
   }
+
+  call(){ this.updateMap(); }
 
   skyConditionToColor(skyCondition){
     switch(skyCondition){
@@ -38,7 +38,7 @@ class MapLightController{
   }
 
   updateMap(){
-    logger.info("Updating LEDs");
+    this.logger.info("Updating LEDs");
     try {
       const metars = MetarRequest.json();
       if(!metars.airports){ throw 'Airports not fetched' }
@@ -50,7 +50,7 @@ class MapLightController{
         if(airport && airport.flight_category){ skyCondition = airport.flight_category._text }
 
         const ledColor = this.skyConditionToColor(skyCondition);
-        logger.debug("Updating " + airport_id + " (" + i + ") to " + skyCondition + " (" + ledColor + ")");
+        this.logger.debug("Updating " + airport_id + " (" + i + ") to " + skyCondition + " (" + ledColor + ")");
 
         if(ledColor){
           this.setColor(i, ledColor)
@@ -61,33 +61,76 @@ class MapLightController{
       })
       this.sendToLEDs();
     } catch(err){
-      logger.info("Failed to update LEDs: " + err);
+      this.logger.info("Failed to update LEDs: " + err);
     } finally {
       setTimeout(() => { this.updateMap() }, this.updateInterval * 1000)
     }
   }
 }
 
-class TestMapLightController extends MapLightController{
+// FIXME How in the hell can we get this to exist in another file...
+class NeoPixelMapLightController extends MapLightController{
   constructor(){
     super();
-    // Board and strip setup
+
+    this.logger = require('./logger')('TestMapLightController');
+
+    const five = require("johnny-five");
+    const pixel = require("node-pixel");
+    const Raspi = require("raspi-io").RaspiIO;
+
+    this.board = _createBoard();
+    this.strip = _createStrip();
+  }
+
+  _createBoard(){
+    return new five.Board({
+      io: new Raspi(),
+      repl: false
+    })
+  }
+
+  _createStrip(){
+    return new pixel.Strip({
+      color_order: pixel.COLOR_ORDER.GRB,
+      board: this.board,
+      controller: "I2CBACKPACK",
+      strips: [config.airports.length]
+    })
+  }
+
+  call(){
+    this.board.on("ready", () => {
+      this.strip.on("ready", () => {
+        this.updateMap();
+      })
+    })
   }
 
   sendToLEDs(){
-    console.log('strip.show()');
-    //strip.show();
+    strip.show();
   }
 
   setColor(i, ledColor){
-    console.log('Updating index ' + i + ' to color ' + ledColor);
-    //strip.pixel(i).color(ledColor);
+    strip.pixel(i).color(ledColor);
   }
-
 }
 
+// Driver for testing and non RPI boards
+class TestMapLightController extends MapLightController{
+  constructor(){
+    // Board and strip setup
+    super();
+    this.logger = require('./logger')('TestMapLightController');
+  }
 
-let m = MapLightController.create()
-m.updateMap();
+  sendToLEDs(){
+    this.logger.debug('Would call strip.show()');
+  }
+
+  setColor(i, ledColor){
+    this.logger.debug('Updating index ' + i + ' to color ' + ledColor);
+  }
+}
 
 module.exports = MapLightController
