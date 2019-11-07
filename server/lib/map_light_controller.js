@@ -69,6 +69,17 @@ class MapLightController{
 }
 
 // FIXME How in the hell can we get this to exist in another file...
+// This uses node-pixel with an I2C backpack.
+// Installation instructions here:
+//   https://github.com/ajfisher/node-pixel/blob/master/docs/installation.md
+//
+// In short:
+//   $ interchange install git+https://github.com/ajfisher/node-pixel -a nano
+//
+// Then:
+//  Open up the arduino IDE, navigate to firmware/build/backpack/ and
+//  open backpack.ino. This will bring in all the required dependencies.
+
 class NeoPixelMapLightController extends MapLightController{
   constructor(){
     super();
