@@ -22,6 +22,7 @@ const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
 const MapLightController = require('./lib/map_light_controller');
 const Cache = require('./lib/cache');
+const mapLightController = MapLightController.create()
 
 const logger = require('./lib/logger')('server');
 
@@ -57,9 +58,11 @@ app.ws('/metar.ws', (ws, req) => {
         switch(message.payload){
           case true:
             logger.info("ledState on");
+            mapLightController.lightsOn();
             break;
           case false:
             logger.info("ledState off");
+            mapLightController.lightsOff();
             break;
           default:
             logger.info("Unknown leds message: " + msg);
@@ -137,7 +140,6 @@ function sendMetarData(ws, repeat=true){
 
 // Begin fetching metars
 WeatherRequest.call();
-const mapLightController = MapLightController.create()
 mapLightController.call();
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
