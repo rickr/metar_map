@@ -2,10 +2,6 @@ import React from 'react';
 import '../../css/App.css';
 
 export default class MetarAge extends React.Component {
-  constructor(props){
-    super(props);
-  }
-
   metarAgeTime = () => {
     let diff = Math.floor((this.props.current_time - this.props.last_updated) / 1000);
     let min = Math.floor(diff / 60);

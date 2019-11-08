@@ -14,16 +14,23 @@ export default class Tools extends React.Component {
   }
 
   ledStateString = () => { return (this.state.ledState === true ? 'Off' : 'On'); }
+
   ledStateCssClass = () => {
     let className = 'button is-large '
     className += this.state.ledState === false ? 'is-success' : 'is-danger';
     return className
   }
 
+  updateData = () => {
+    this.props.ws.send({ data: 'update' });
+  }
+
+
   render(){
     return(
       <div>
-        <button className={this.ledStateCssClass()} onClick={this.setLedState}>Turn Lights {this.ledStateString()}</button>
+        <p><button className={this.ledStateCssClass()} onClick={this.setLedState}>Turn Lights {this.ledStateString()}</button></p>
+        <p><button className='button is-large is-primary' onClick={this.updateData}>Update Data</button></p>
       </div>
     );
   };

@@ -66,6 +66,17 @@ app.ws('/metar.ws', (ws, req) => {
             break;
         }
         break;
+      case "data":
+        switch(message.payload){
+          case 'update':
+            logger.info("Updating data");
+            WeatherRequest.update();
+            sendMetarData(ws, false);
+            break;
+          default:
+            logger.info("Unknown data message: " + msg);
+            break;
+        }
       default:
         logger.info("RX unknown message type'" + msg + "'");
         break;
@@ -99,7 +110,7 @@ sendLogData = (ws) => {
   }
 }
 
-function sendMetarData(ws){
+function sendMetarData(ws, repeat=true){
   logger.info("Sending metar data");
   if(!ws){ logger.info("WS is null"); return false }
 
@@ -118,8 +129,7 @@ function sendMetarData(ws){
       }));
     }
 
-    // Make this configurable
-    setTimeout(sendMetarData, 10 * 1000, ws)
+    if(repeat) { setTimeout(sendMetarData, 10 * 1000, ws) };
   }else{
     logger.info("Unknown ready state: " + ws.readyState);
   }

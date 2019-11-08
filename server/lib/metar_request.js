@@ -113,8 +113,13 @@ class TafRequest extends MetarRequest{
 class WeatherRequest{
   // FIXME have the request types passed in
   static call(){
-    this.callEvery(MetarRequest)
-    this.callEvery(TafRequest)
+    this.callEvery(MetarRequest);
+    this.callEvery(TafRequest);
+  }
+
+  static update(){
+    MetarRequest.call();
+    TafRequest.call();
   }
 
   static callEvery(object){

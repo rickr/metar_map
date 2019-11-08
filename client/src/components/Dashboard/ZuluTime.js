@@ -2,10 +2,6 @@ import React from 'react';
 import '../../css/App.css';
 
 export default class ZuluTime extends React.Component {
-  constructor(props){
-    super(props);
-  }
-
   render(){
     return(
       <div className='tile is-ancenstor'>
