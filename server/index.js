@@ -4,7 +4,7 @@ const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const port = 4567;
+const port = process.env.ENV == 'prod' ? 80 : 4567;
 const https = require('https');
 const convert = require('xml-js');
 const os = require('os');
@@ -16,66 +16,76 @@ const app = express();
 enableWs(app)
 
 // Local libs
-const config = require('./lib/config')
+const Config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request').MetarRequest
 const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
 let NeoPixel = null
 if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
+const MapLightController = require('./lib/map_light_controller');
+const Cache = require('./lib/cache');
+
 const logger = require('./lib/logger')('server');
 
 app.use(bodyParser.json());
 app.use(cors());
 
-function Cache(maxLength) {
-  this.values = [];
-
-  this.store = function(data) {
-    if(this.values.length >= maxLength) {
-      this.getLast();
-    }
-    return this.values.push(data);
-  }
-
-  this.getLast = function() {
-    return this.values.splice(0,1)[0];
+class Message{
+  constructor(message){
+    this.parsedMessage = JSON.parse(message)
+    this.type = Object.keys(this.parsedMessage)[0]
+    this.payload = Object.values(this.parsedMessage)[0]
   }
 }
 
 app.ws('/metar.ws', (ws, req) => {
-  ws.on('message', (message) => {
-    switch(message){
-      case "metars":
-        logger.info("metars RX");
-        sendMetarData(ws);
+  ws.on('message', (msg) => {
+    const message = new Message(msg)
+
+    switch(message.type){
+      case "subscribe":
+        switch(message.payload){
+          case "metars":
+            logger.info("metars RX");
+            sendMetarData(ws);
+            break;
+          case "logs":
+            logger.info("log message RX");
+            sendLogData(ws);
+            break;
+        }
         break;
-      case "hello":
-        logger.info("hello RX");
-        break;
-      case "logs":
-        logger.info("log message RX");
-        sendLogData(ws);
+      case "leds":
+        switch(message.payload){
+          case true:
+            logger.info("ledState on");
+            break;
+          case false:
+            logger.info("ledState off");
+            break;
+          default:
+            logger.info("Unknown leds message: " + msg);
+            break;
+        }
         break;
       default:
-        logger.info("RX unknown message '" + message + "'");
+        logger.info("RX unknown message type'" + msg + "'");
         break;
     }
   })
 })
 
 // Serve our production build
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../client/build', 'index.html')));
 
 sendLogData = (ws) => {
   let logLines = new Cache(100)
 
   logger.info("Sending log data");
-  const latestLines = spawn('tail', ['-100', config.log_file]);
+  const latestLines = spawn('tail', ['-100', Config.log_file]);
   latestLines.stdout.on('data', (line) => { logLines.store(line.toString()) })
 
-  logger.info(logLines.length);
-
-  const tail = spawn('tail', ['-F', config.log_file]);
+  const tail = spawn('tail', ['-F', Config.log_file]);
 
   if(!ws){ logger.info("WS is null"); return false }
   if(ws.readyState === 1){
@@ -96,7 +106,7 @@ function sendMetarData(ws){
   if(!ws){ logger.info("WS is null"); return false }
 
   if(ws.readyState === 1){
-    let payload = WeatherRequest.as_json();
+    let payload = WeatherRequest.json();
 
     if(payload.has_errors){
       ws.send(JSON.stringify({
@@ -117,10 +127,10 @@ function sendMetarData(ws){
   }
 }
 
-
 // Begin fetching metars
-WeatherRequest.execute();
-if(os.arch() == 'arm' ){ NeoPixel.execute() }
+WeatherRequest.call();
+const mapLightController = MapLightController.create()
+mapLightController.call();
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
 
