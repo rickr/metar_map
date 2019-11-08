@@ -10,7 +10,7 @@ class MapLightController{
   static create(){
     if(os.arch() == 'arm'){
       // FIXME - check our config for the driver
-      console.log("ARM platform, get the right driver");
+      return new NeoPixelMapLightController()
     } else{
       return new TestMapLightController()
     }
@@ -84,26 +84,26 @@ class NeoPixelMapLightController extends MapLightController{
   constructor(){
     super();
 
-    this.logger = require('./logger')('TestMapLightController');
+    this.logger = require('./logger')('NeoPixelMapLightController');
 
-    const five = require("johnny-five");
-    const pixel = require("node-pixel");
-    const Raspi = require("raspi-io").RaspiIO;
+    this.five = require("johnny-five");
+    this.pixel = require("node-pixel");
+    this.Raspi = require("raspi-io").RaspiIO;
 
-    this.board = _createBoard();
-    this.strip = _createStrip();
+    this.board = this._createBoard();
+    this.strip = this._createStrip();
   }
 
   _createBoard(){
-    return new five.Board({
-      io: new Raspi(),
+    return new this.five.Board({
+      io: new this.Raspi(),
       repl: false
     })
   }
 
   _createStrip(){
-    return new pixel.Strip({
-      color_order: pixel.COLOR_ORDER.GRB,
+    return new this.pixel.Strip({
+      color_order: this.pixel.COLOR_ORDER.GRB,
       board: this.board,
       controller: "I2CBACKPACK",
       strips: [config.airports.length]
@@ -119,11 +119,11 @@ class NeoPixelMapLightController extends MapLightController{
   }
 
   sendToLEDs(){
-    strip.show();
+    this.strip.show();
   }
 
   setColor(i, ledColor){
-    strip.pixel(i).color(ledColor);
+    this.strip.pixel(i).color(ledColor);
   }
 }
 

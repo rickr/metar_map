@@ -22,7 +22,7 @@ const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
 let NeoPixel = null
 if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
-let MapLightController = require('./lib/map_light_controller');
+const MapLightController = require('./lib/map_light_controller');
 const Cache = require('./lib/cache');
 
 const logger = require('./lib/logger')('server');
