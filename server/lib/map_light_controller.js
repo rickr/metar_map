@@ -66,6 +66,8 @@ class MapLightController{
       setTimeout(() => { this.updateMap() }, this.updateInterval * 1000)
     }
   }
+
+  lightsOn(){ this.updateMap(); }
 }
 
 // FIXME How in the hell can we get this to exist in another file...
@@ -125,6 +127,9 @@ class NeoPixelMapLightController extends MapLightController{
   setColor(i, ledColor){
     this.strip.pixel(i).color(ledColor);
   }
+
+  lightsOff(){ this.strip.off(); }
+
 }
 
 // Driver for testing and non RPI boards
@@ -142,6 +147,8 @@ class TestMapLightController extends MapLightController{
   setColor(i, ledColor){
     this.logger.debug('Updating index ' + i + ' to color ' + ledColor);
   }
+
+  lightsOff(){ console.log("Lights off!") };
 }
 
 module.exports = MapLightController
