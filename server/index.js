@@ -4,7 +4,7 @@ const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const port = process.env.ENV == 'prod' ? 80 : 4567;
+const port = process.env.ENV == 'production' ? 80 : 4567;
 const https = require('https');
 const convert = require('xml-js');
 const os = require('os');
@@ -20,8 +20,6 @@ const Config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request').MetarRequest
 const TafRequest = require('./lib/metar_request').TafRequest
 const WeatherRequest = require('./lib/metar_request').WeatherRequest
-let NeoPixel = null
-if(os.arch() == 'arm'){ NeoPixel = require('./lib/neo_pixel') };
 const MapLightController = require('./lib/map_light_controller');
 const Cache = require('./lib/cache');
 
@@ -76,7 +74,7 @@ app.ws('/metar.ws', (ws, req) => {
 })
 
 // Serve our production build
-app.use(express.static(path.join(__dirname, '../client/build', 'index.html')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 sendLogData = (ws) => {
   let logLines = new Cache(100)

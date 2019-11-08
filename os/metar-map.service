@@ -5,9 +5,9 @@ After=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/root/metar_map/server
-ExecStart=npm start
+ExecStart=node index
 Restart=on-failure
-Environment=ENV=prod
+Environment=ENV=production
 
 [Install]
 WantedBy=multi-user.target
