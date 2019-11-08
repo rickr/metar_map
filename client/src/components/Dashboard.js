@@ -12,7 +12,8 @@ class Dashboard extends React.Component {
       selectedAirport: null,
       airportComponents: [],
       currentIndex: 0,
-      airportCycleTimer: null
+      airportCycleTimer: null,
+      currentTime: new Date()
     };
   };
 
@@ -48,6 +49,7 @@ class Dashboard extends React.Component {
   }
 
   componentDidMount() {
+    setInterval(() => { this.setState({ currentTime : new Date() }) }, 1000)
     this.cycleAirports();
   }
 
@@ -58,8 +60,9 @@ class Dashboard extends React.Component {
   render(){
     return(
       <div>
+        <ZuluTime current_time={this.state.currentTime} />
         <AirportRows metars={this.props.metars} airportRows={this.props.metarCount / this.airportsPerRow} airportsPerRow={this.airportsPerRow} updateSelectedAirport={this.updateSelectedAirport}/>
-        <CurrentTimes last_updated={new Date(this.props.lastUpdated)} />
+        <MetarAge current_time={this.state.currentTime} last_updated={new Date(this.props.lastUpdated)} />
 
         <AirportInfo selectedAirport={this.state.selectedAirport} airports={this.props.airports}/>
       </div>
@@ -187,20 +190,13 @@ class AirportInfo extends React.Component {
   }
 }
 
-class CurrentTimes extends React.Component {
+class MetarAge extends React.Component {
   constructor(props){
     super(props);
-    this.state = {
-      currentTime: new Date().toLocaleString(),
-    }
-  }
-
-  componentDidMount() {
-    setInterval(() => { this.setState({ currentTime : new Date() }) },1000)
   }
 
   metarAgeTime = () => {
-    let diff = Math.floor((this.state.currentTime - this.props.last_updated) / 1000);
+    let diff = Math.floor((this.props.current_time - this.props.last_updated) / 1000);
     let min = Math.floor(diff / 60);
     let sec = Math.floor(diff % 60);
     return min + ":" + sec.toString().padStart(2, '0');
@@ -217,6 +213,25 @@ class CurrentTimes extends React.Component {
       </div>
     )
   }
+}
+
+class ZuluTime extends React.Component {
+  constructor(props){
+    super(props);
+  }
+
+  render(){
+    return(
+      <div className='tile is-ancenstor'>
+        <div className='tile is-parent is-12' style={{ marginTop: '0px', paddingTop: '0px' }} >
+          <div className='tile is-child'>
+            <div className='has-text-centered is-size-4'>{this.props.current_time.toUTCString()}</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
 }
 
 export default Dashboard;
