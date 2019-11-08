@@ -8,7 +8,7 @@ opts.port = process.argv[2] || "";
 var board = new five.Board(opts);
 var strip = null;
 
-var fps = 3; // how many frames per second do you want to try?
+var fps = 30; // how many frames per second do you want to try?
 
 board.on("ready", function() {
 
@@ -18,7 +18,7 @@ board.on("ready", function() {
       color_order: pixel.COLOR_ORDER.GRB,
       board: this,
       controller: "I2CBACKPACK",
-      strips: [21],
+      strips: [100],
   });
 
   strip.on("ready", function() {

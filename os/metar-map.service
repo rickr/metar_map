@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-WorkingDirectory=/root/metar_map/metar_map/server
+WorkingDirectory=/root/metar_map/server
 ExecStart=npm start
 Restart=on-failure
 
