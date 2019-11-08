@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Logs extends React.Component {
+export default class Logs extends React.Component {
   componentDidMount = () => {
     console.log("Fetching logs");
   }
@@ -13,5 +13,3 @@ class Logs extends React.Component {
     );
   };
 }
-
-export default Logs;

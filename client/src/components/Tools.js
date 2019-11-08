@@ -1,6 +1,6 @@
 import React from 'react';
 
-class Tools extends React.Component {
+export default class Tools extends React.Component {
   constructor(props){
     super(props);
     this.state = {
@@ -20,8 +20,6 @@ class Tools extends React.Component {
     return className
   }
 
-  ledStateClassNames = () => { }
-
   render(){
     return(
       <div>
@@ -30,5 +28,3 @@ class Tools extends React.Component {
     );
   };
 }
-
-export default Tools;
