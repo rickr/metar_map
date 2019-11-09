@@ -5,6 +5,7 @@ const MetarRequest = require('./metar_request').MetarRequest;
 class MapLightController{
   constructor(){
     this.updateInterval = 10 //seconds
+    this.timeout = null
   }
 
   static create(){
@@ -63,11 +64,12 @@ class MapLightController{
     } catch(err){
       this.logger.info("Failed to update LEDs: " + err);
     } finally {
-      setTimeout(() => { this.updateMap() }, this.updateInterval * 1000)
+      this.timeout = setTimeout(() => { this.updateMap() }, this.updateInterval * 1000)
     }
   }
 
-  lightsOn(){ this.updateMap(); }
+  lightsOn(){ this.updateMap(); };
+  lightsOff(){ clearTimeout(this.timeout) };
 }
 
 // FIXME How in the hell can we get this to exist in another file...
@@ -128,7 +130,10 @@ class NeoPixelMapLightController extends MapLightController{
     this.strip.pixel(i).color(ledColor);
   }
 
-  lightsOff(){ this.strip.off(); }
+  lightsOff(){
+    super.lightsOff();
+    this.strip.off();
+  }
 
 }
 
@@ -148,7 +153,10 @@ class TestMapLightController extends MapLightController{
     this.logger.debug('Updating index ' + i + ' to color ' + ledColor);
   }
 
-  lightsOff(){ console.log("Lights off!") };
+  lightsOff(){
+    super.lightsOff();
+    console.log("Lights off!")
+  };
 }
 
 module.exports = MapLightController
