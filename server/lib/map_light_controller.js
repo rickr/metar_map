@@ -152,7 +152,7 @@ class Ws281xNativeMapLightController extends MapLightController{
 
     this.five = require("johnny-five");
     this.Raspi = require("raspi-io").RaspiIO;
-    this.ws281x = require("ws281x-native");
+    this.ws281x = require("rpi-ws281x-native");
 
     this.board = this._createBoard();
     this.pixelData = []
@@ -160,7 +160,7 @@ class Ws281xNativeMapLightController extends MapLightController{
 
   _createBoard(){
     return new this.five.Board({
-      io: new Raspi({ excludePins: 'GPIO18'}),
+      io: new this.Raspi({ excludePins: 'GPIO18'}),
       repl: false
     })
   }
