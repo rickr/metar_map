@@ -10,8 +10,11 @@ class MapLightController{
 
   static create(){
     if(os.arch() == 'arm'){
-      // FIXME - check our config for the driver
-      return new NeoPixelMapLightController()
+      if(config.driver == 'ws281x-native'){
+        return new Ws281xNativeMapLightController();
+      } else{
+        return new NeoPixelMapLightController()
+      }
     } else{
       return new TestMapLightController()
     }
@@ -135,6 +138,51 @@ class NeoPixelMapLightController extends MapLightController{
     this.strip.off();
   }
 
+}
+
+// Support for the WS281X-native node package
+// https://github.com/beyondscreen/node-rpi-ws281x-native
+// I didn't have much luck controlling the lights directly with the pi but
+// my reasearch says it's possible. You may need to use a level shifter:
+// https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring
+class Ws281xNativeMapLightController extends MapLightController{
+  constructor(){
+    super();
+    this.logger = require('./logger')('Ws281xNativeMapLightController');
+
+    this.five = require("johnny-five");
+    this.Raspi = require("raspi-io").RaspiIO;
+    this.ws281x = require("rpi-ws281x-native");
+
+    this.board = this._createBoard();
+    this.pixelData = []
+  }
+
+  _createBoard(){
+    return new this.five.Board({
+      io: new this.Raspi({ excludePins: 'GPIO18'}),
+      repl: false
+    })
+  }
+
+  call(){
+    this.ws281x.init(config.airports.length)
+    super.updateMap();
+  }
+
+  sendToLEDs(){
+    this.ws281x.render(this.pixelData);
+  }
+
+  setColor(i, ledColor){
+    console.log(Buffer.from(ledColor, 'utf8').toString('hex'));
+    this.pixelData[i] = parseInt('0x' + config.led.colors.vfr.substr(1));
+  }
+
+  lightsOff(){
+    super.lightsOff();
+    this.ws281x.reset();
+  }
 }
 
 // Driver for testing and non RPI boards
