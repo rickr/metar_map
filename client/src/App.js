@@ -3,59 +3,13 @@ import './css/App.css';
 import Dashboard from './components/Dashboard';
 import Logs from './components/Logs';
 import Tools from './components/Tools';
+import WebSocketClient from './lib/WebSocketClient';
 import {
     BrowserRouter as Router,
     Switch,
     Route,
     Link
 } from "react-router-dom";
-
-// WebSocketClient handles all aspects of our websocket and its data
-// and updates the state of our app
-class WebSocketClient {
-  constructor(App){
-    this.App = App
-    this.messageTypes = ['metars', 'logs'];
-    this.connect();
-  };
-
-  connect = () => {
-    console.log("Opening WS to " + window.location.host);
-    this.ws = new WebSocket('ws://' + window.location.host + '/metar.ws')
-  }
-
-  subscribe = () => {
-    this.ws.onopen = () => {
-      console.log('Connected');
-      this.messageTypes.forEach((messageType) => { this.send({subscribe: messageType}) });
-    }
-
-    this.ws.onmessage = (evt) => { this.handleMessage(JSON.parse(evt.data)) }
-  }
-
-  send = (message) => { this.ws.send(JSON.stringify(message)) }
-
-  handleMessage = (message) => {
-    switch(message.type){
-      case "metars":
-        console.log('RX METAR');
-        this.App.setState({
-          airports: message.payload,
-          metars: message.payload.metars.airports,
-          metarCount: message.payload.metars.airports.length,
-          lastUpdated: message.payload.metars.lastUpdated
-        });
-        break;
-      case "logs":
-        console.log('RX LOG');
-        this.App.setState({ logLines: message.payload, });
-        break;
-      default:
-        console.log('Unknown message type: ' + JSON.stringify(message));
-        break;
-    }
-  }
-}
 
 class App extends React.Component{
   constructor(props){
@@ -76,7 +30,6 @@ class App extends React.Component{
       ws: ws,
       activeTab: 'dashboard'
     })
-    ws.subscribe();
   }
 
   isActive = (tabName) => { if(tabName === this.state.activeTab){ return 'is-active' } }
