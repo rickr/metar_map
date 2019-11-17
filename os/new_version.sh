@@ -9,7 +9,7 @@
 # Build client
 # Add tag
 
-function status(){
+function status_message_message(){
   echo " *** $*"
 }
 
@@ -26,24 +26,30 @@ BASE_DIR="${MY_DIR}/.."
 
 cd $BASE_DIR
 
-#$GIT checkout master
+$GIT checkout master
 CURRENT_VERSION=$(cat VERSION)
 NEW_VERSION=$(echo $CURRENT_VERSION + 1 | bc)
-echo "Creating new version ${NEW_VERSION}"
+status_message "Creating new version ${NEW_VERSION}"
 echo $NEW_VERSION > VERSION
-#$GIT merge --no-ff -m "Merge branch 'develop'" develop
+
+status_message 'Merging develop into master'
+$GIT merge --no-ff -m "Merge branch 'develop'" develop
 
 # Build new client
-#cd client && $NPM run build && cd $BASE_DIR
+status_message 'Building client'
+cd client && $NPM run build && cd $BASE_DIR
 
+status_message 'Pushing to github'
 $GIT add -A
-$GIT commit -a -m "Release ${VERSION}"
+$GIT commit -a -m "Release ${NEW_VERSION}"
+$GIT tag "v${NEW_VERSION}"
+$GIT push origin --tags
 $GIT push
 
-status "Updating development branch '${DEV_BRANCH}'"
-#$GIT checkout $DEV_BRANCH
-#$GIT merge master
-#$GIT push
+status_message "Updating development branch '${DEV_BRANCH}'"
+$GIT checkout $DEV_BRANCH
+$GIT merge master
+$GIT push
 
-status "Returning to ${ORIGINAL_BRANCH}"
-#$GIT checkout ${ORIGINAL_BRANCH}
+status_message "Returning to ${ORIGINAL_BRANCH}"
+$GIT checkout ${ORIGINAL_BRANCH}
