@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
+set -euxo pipefail
 
-#
 # Creates a new version of the metar map software
-#
-# Checkout the master branch
-# Merge in develop
-# Bump version
-# Build client
-# Add tag
 
-function status_message_message(){
+function status_message(){
   echo " *** $*"
 }
 
