@@ -9,6 +9,10 @@
 # Build client
 # Add tag
 
+function status(){
+  echo " *** $*"
+}
+
 GIT=$(which git)
 NPM=$(which npm)
 
@@ -36,6 +40,10 @@ $GIT add -A
 $GIT commit -a -m "Release ${VERSION}"
 $GIT push
 
-$GIT checkout $DEV_BRANCH
-$GIT merge master
-$GIT checkout ${ORIGINAL_BRANCH}
+status "Updating development branch '${DEV_BRANCH}'"
+#$GIT checkout $DEV_BRANCH
+#$GIT merge master
+#$GIT push
+
+status "Returning to ${ORIGINAL_BRANCH}"
+#$GIT checkout ${ORIGINAL_BRANCH}
