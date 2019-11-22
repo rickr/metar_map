@@ -1,0 +1,20 @@
+{
+  "name": "mothership",
+  "version": "1.0.0",
+  "description": "The mothership provides a way for people to access their metar map dashboard via a consistent address.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sqlite3": "^4.1.0"
+  },
+  "devDependencies": {
+    "fs-extra": "^8.1.0",
+    "nodemon": "^1.19.4"
+  }
+}

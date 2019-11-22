@@ -7,7 +7,7 @@ Type=simple
 WorkingDirectory=/root/metar_map/server
 ExecStart=node index
 Restart=on-failure
-Environment=ENV=production
+Environment=METAR_MAP_ENV=production
 
 [Install]
 WantedBy=multi-user.target
