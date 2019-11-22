@@ -4,7 +4,7 @@ class MetarMapMothershipServer {
     const MetarMapDb = require("./lib/metar_map_db");
     this.app = express();
     this.app.use(express.json())
-    this.port = 4567;
+    this.port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
     this.db = new MetarMapDb();
   }
 
