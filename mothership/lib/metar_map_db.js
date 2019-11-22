@@ -1,17 +1,37 @@
-// import sqlite3 from "sqlite3";
-
 class MetarMapDb {
-  static DB_PATH() { return "/var/metar_map.db"; }
+  static DB_PATH() { return process.cwd() + "/db/metar_map.db"; }
 
   constructor() {
     const sqlite3 = require("sqlite3").verbose();
 
-    this.db = new sqlite3.Database(process.cwd() + "/db/metar_map.db", (err) => {
+    this.db = new sqlite3.Database(MetarMapDb.DB_PATH(), (err) => {
       if (err) {
         console.error(err.message);
         return false;
       }
-      console.log("Connected to the MetarMap database.");
+      this.db.all("SELECT name FROM sqlite_master WHERE type='table'", (err, rows) => {
+        if (err) {
+          console.error(err.message);
+          return false;
+        }
+        if(rows.length == 0){
+          console.log("Empty table")
+          this.db.run("CREATE TABLE maps(id text unique, version text, internal_ip text, external_ip text, last_updated integer);", (err, rows) => {
+            console.log("Created table");
+          });
+        }
+      });
+      console.log("Connected to the MetarMap database at ", MetarMapDb.DB_PATH());
+    });
+  }
+
+  runQuery(query) {
+    this.db.all(query, function(err, rows){
+      if (err) {
+        console.error(err.message);
+        return false;
+      }
+      return rows
     });
   }
 
