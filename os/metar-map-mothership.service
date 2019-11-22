@@ -1,0 +1,13 @@
+[Unit]
+Description=Metar Map Mothership Web Service
+After=multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/metar_map/mothership
+ExecStart=node index
+Restart=on-failure
+Environment=METAR_MAP_ENV=production
+
+[Install]
+WantedBy=multi-user.target
