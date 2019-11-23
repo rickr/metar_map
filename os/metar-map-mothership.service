@@ -1,11 +1,11 @@
 [Unit]
-Description=Metar Map Web Service
+Description=Metar Map Mothership Web Service
 After=multi-user.target
 
 [Service]
 Type=simple
-WorkingDirectory=/root/metar_map/server
-ExecStart=node index
+WorkingDirectory=/root/metar_map/mothership
+ExecStart=/usr/bin/node index.js
 Restart=on-failure
 Environment=METAR_MAP_ENV=production
 

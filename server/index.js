@@ -4,7 +4,7 @@ const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const port = process.env.ENV == 'production' ? 80 : 4567;
+const port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
 const https = require('https');
 const convert = require('xml-js');
 const os = require('os');
