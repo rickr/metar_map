@@ -3,9 +3,8 @@
 set -euf -o pipefail
 
 GIT=$(which git)
+SERVICE=$(which service)
 $GIT fetch -q
-$SERVICE metar-map restart
-
 
 UPSTREAM=${1:-'@{u}'}
 LOCAL=$($GIT rev-parse @)
@@ -19,3 +18,5 @@ elif [ $LOCAL = $BASE ]; then
     $GIT pull
     echo "New version $(cat VERSION) installed"
 fi
+
+$SERVICE metar-map restart
