@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 WorkingDirectory=/root/metar_map/mothership
-ExecStart=node index
+ExecStart=/usr/bin/node index.js
 Restart=on-failure
 Environment=METAR_MAP_ENV=production
 
