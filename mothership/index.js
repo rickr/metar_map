@@ -41,7 +41,11 @@ class MetarMapMothershipServer {
     // FIXME Handle errors
     this.app.get("/", (req, res) => {
       this.db.find(req.ip).then((result) => {
-        res.send(this.metaTag(result[0].internal_ip))
+        if(result.length) { 
+          res.send(this.metaTag(result[0].internal_ip))
+        }else{
+          res.send("Your IP " + req.ip + " was not found in the mothership database");
+        }
       });
     });
   }
