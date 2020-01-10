@@ -33,7 +33,7 @@ class MetarMapMothershipServer {
       data.last_updated = Date.now();
       console.log(data);
       this.db.update(data);
-      res.send('ok');
+      res.send("ok\n");
     });
   }
 
