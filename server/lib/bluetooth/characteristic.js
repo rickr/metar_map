@@ -3,11 +3,51 @@ const wifi = require('node-wifi');
 
 wifi.init({ iface: null });
 
+// Takes a string and breaks it up into chunks to send
+// over BLE
+class Sender {
+  constructor(data, updateValueCallback, chunkSize = 20){
+    this.updateValueCallback = updateValueCallback;
+    this.chunkSize = chunkSize; // bytes
+    this.delay = 30 // ms between chunks
+
+    this.data = this.setData(data + "\0");
+    console.log(this.data);
+  }
+
+  setData(data){
+    return this.splitString(data, this.chunkSize);
+  }
+
+  send(){
+    this.data.forEach((chunk, i) => {
+      setTimeout(() => { this.sendChunk(chunk) }, i * this.delay);
+    })
+  }
+
+  // private
+  splitString(str, len) {
+    let ret = [];
+    for (let offset = 0, strLen = str.length; offset < strLen; offset += len) {
+      ret.push(str.slice(offset, len + offset));
+    }
+    return ret;
+  }
+
+  sendChunk(chunk){
+    console.log('Sending chunk: ' + chunk);
+    this.updateValueCallback(new Buffer.from(chunk));
+  }
+
+}
+
+// Write to start a wifi scan
+// Subscribe for results
 class ScanCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
       uuid: 'ec0f',
-      properties:  ['notify'],
+      properties:  ['read', 'write', 'notify'],
       value: ''
     })
 
@@ -25,49 +65,40 @@ class ScanCharacteristic extends bleno.Characteristic {
         console.log(err);
         this.isScanning = false;
       }else{
-        this.networks = this.splitString(JSON.stringify(networks), 20);
-        console.log(this.networks);
+        this.networks = JSON.stringify(networks);
         this.isScanning = false;
         console.log('Scan complete');
       }
     })
   }
 
-  onReadRequest(offset, callback){
-    callback(this.RESULT_SUCCESS, this.value);
+  onWriteRequest(data, offset, withoutResponse, callback){
+    console.log("Write Request");
+    console.log("Data:" + data.toString('utf8'));
+    if(data.toString('utf8') == '1'){
+      console.log('enabled') 
+      this.wifiScan();
+    }
+    else {
+      console.log('disabled')
+    };
+    callback(this.RESULT_SUCCESS);
   }
 
   onNotify(){
-    console.log("onNotify");
-  }
-
-
-  splitString(str, len) {
-    let ret = [];
-    for (let offset = 0, strLen = str.length; offset < strLen; offset += len) {
-      ret.push(str.slice(offset, len + offset));
-    }
-    return ret;
-  }
-
-  sendChunk(chunk){
-    this.updateValueCallback(new Buffer.from(chunk));
+    //console.log("onNotify");
   }
 
   onSubscribe(maxValueSize, updateValueCallback) {
     console.log("On Subscribe");
-    this.updateValueCallback = updateValueCallback
-    this.wifiScan();
     const interval = setInterval(() => {
-      if(this.isScanning){
-        console.log("Still scanning")
-      }else {
-        this.networks.forEach((chunk) => {
-          this.sendChunk(chunk);
-        })
-        this.sendChunk("\0");
-
+      if(!this.isScanning && this.networks.length > 0){
+        console.log("Sending results");
+        console.log(this.networks);
+        new Sender(this.networks, updateValueCallback).send();
         clearInterval(interval)
+      }else {
+        console.log("Still scanning")
       }
     }, 1000);
   }
