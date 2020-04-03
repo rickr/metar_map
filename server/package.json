@@ -22,6 +22,7 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "js-yaml": "^3.13.1",
+    "node-bluetooth": "^1.2.6",
     "node-wifi": "^2.0.12",
     "nodebots-interchange": "^1.3.0",
     "nodemon": "^1.19.3",
