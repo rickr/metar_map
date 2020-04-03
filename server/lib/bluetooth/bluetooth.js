@@ -22,7 +22,7 @@ bleno.on('stateChange', function(state) {
   console.log('on -> stateChange: ' + state);
 
   if (state === 'poweredOn') {
-    bleno.startAdvertising('echo', ['ec00']);
+    bleno.startAdvertising('WXMap', ['ed6695dd-be8a-44d6-a11d-cb3348faa85a']);
   } else {
     bleno.stopAdvertising();
   }
@@ -34,7 +34,7 @@ bleno.on('advertisingStart', function(error) {
   if (!error) {
     bleno.setServices([
       new BlenoPrimaryService({
-        uuid: 'ec00',
+        uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
         characteristics: [
           new EchoCharacteristic(),
           new ScanCharacteristic()

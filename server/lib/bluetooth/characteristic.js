@@ -1,53 +1,16 @@
 const bleno = require('@abandonware/bleno');
 const wifi = require('node-wifi');
+const Sender = require('./sender')
 
 wifi.init({ iface: null });
-
-// Takes a string and breaks it up into chunks to send
-// over BLE
-class Sender {
-  constructor(data, updateValueCallback, chunkSize = 20){
-    this.updateValueCallback = updateValueCallback;
-    this.chunkSize = chunkSize; // bytes
-    this.delay = 30 // ms between chunks
-
-    this.data = this.setData(data + "\0");
-    console.log(this.data);
-  }
-
-  setData(data){
-    return this.splitString(data, this.chunkSize);
-  }
-
-  send(){
-    this.data.forEach((chunk, i) => {
-      setTimeout(() => { this.sendChunk(chunk) }, i * this.delay);
-    })
-  }
-
-  // private
-  splitString(str, len) {
-    let ret = [];
-    for (let offset = 0, strLen = str.length; offset < strLen; offset += len) {
-      ret.push(str.slice(offset, len + offset));
-    }
-    return ret;
-  }
-
-  sendChunk(chunk){
-    console.log('Sending chunk: ' + chunk);
-    this.updateValueCallback(new Buffer.from(chunk));
-  }
-
-}
 
 // Write to start a wifi scan
 // Subscribe for results
 class ScanCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
-      uuid: 'ec0f',
-      properties:  ['read', 'write', 'notify'],
+      uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
+      properties:  ['write', 'notify'],
       value: ''
     })
 
