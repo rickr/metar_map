@@ -14,8 +14,14 @@ console.log("State: " + bleno.state);
 // For non root running:
 // sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 
+bleno.on('accept', (clientAddress) => {
+  console.log("Connect: " + clientAddress);
+  return true;
+});
+
 bleno.on('disconnect', (clientAddress) => {
   console.log("Disconnected: " + clientAddress);
+  return true;
 });
 
 bleno.on('stateChange', function(state) {

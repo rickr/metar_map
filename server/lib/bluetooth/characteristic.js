@@ -9,7 +9,7 @@ wifi.init({ iface: null });
 class ScanCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
-      uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
+      uuid: 'fe600987-e2ea-4c16-b938-f5d04e904af2',
       properties:  ['write', 'notify'],
       value: ''
     })
