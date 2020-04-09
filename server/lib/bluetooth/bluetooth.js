@@ -2,7 +2,8 @@ process.env['BLENO_DEVICE_NAME'] = 'WXMap';
 
 const bleno = require('@abandonware/bleno');
 const BlenoPrimaryService = bleno.PrimaryService;
-const {EchoCharacteristic, ScanCharacteristic} = require('./characteristic');
+const {ScanCharacteristic} = require('./wifiService/scanCharacteristic');
+const {ipCharacteristic} = require('./mapService/ipCharacteristic');
 
 console.log("Welcome!");
 console.log("Address: 20:16:B9:20:7C:58");
@@ -34,18 +35,26 @@ bleno.on('stateChange', function(state) {
   }
 });
 
+wifiService = new BlenoPrimaryService({
+  uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
+  characteristics: [
+    new ScanCharacteristic()
+  ]
+})
+
+mapService = new BlenoPrimaryService({
+  uuid: 'a5023bbe-29f9-4385-ab43-a9b3600ab7c4',
+  characteristics: [
+    new ipCharacteristic()
+  ]
+})
 
 bleno.on('advertisingStart', function(error) {
   console.log('on -> advertisingStart: ' + (error ? 'error ' + error : 'success'));
   if (!error) {
     bleno.setServices([
-      new BlenoPrimaryService({
-        uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
-        characteristics: [
-          new EchoCharacteristic(),
-          new ScanCharacteristic()
-        ]
-      })
+      wifiService,
+      mapService
     ],
     function(error) { console.log('setServices: '  + (error ? 'error ' + error : 'success')); }
     )

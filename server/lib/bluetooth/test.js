@@ -1,3 +1,5 @@
-setInterval(() => {
-  console.log("Value");
-}, 1000);
+const os = require('os');
+
+var networkInterfaces = os.networkInterfaces( );
+
+console.log( networkInterfaces );
