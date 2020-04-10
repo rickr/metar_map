@@ -1,12 +1,10 @@
 process.env['BLENO_DEVICE_NAME'] = 'WXMap';
 
 const bleno = require('@abandonware/bleno');
-const BlenoPrimaryService = bleno.PrimaryService;
 const logger = require('../logger')('BLEPeripheral');
 
-
-const {ScanCharacteristic} = require('./wifiService/scanCharacteristic');
-const {ipCharacteristic} = require('./mapService/ipCharacteristic');
+const mapService = require('./mapService')
+const wifiService = require('./wifiService')
 
 // For non root running:
 // sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
@@ -26,20 +24,12 @@ class BLEPeripheral {
   }
 
   registerServices(){
-    this.services.push(new BlenoPrimaryService({
-      uuid: 'ed6695dd-be8a-44d6-a11d-cb3348faa85a',
-      characteristics: [
-        new ScanCharacteristic()
-      ]
-    }))
+    this.services.push(new wifiService);
+    this.services.push(new mapService);
+  }
 
-    this.services.push(new BlenoPrimaryService({
-      uuid: 'a5023bbe-29f9-4385-ab43-a9b3600ab7c4',
-      characteristics: [
-        new ipCharacteristic()
-      ]
-    }))
-
+  serviceUUIDs(){
+    return this.services.map((service) => { return service.uuid });
   }
 
   registerHandlers(){
@@ -66,7 +56,7 @@ class BLEPeripheral {
 
     if (state === 'poweredOn') {
       if(this.startAdvertising){
-        bleno.startAdvertising('WXMap', ['ed6695dd-be8a-44d6-a11d-cb3348faa85a']);
+        bleno.startAdvertising('WXMap', [mapService.uuid()]);
       }
     } else {
       bleno.stopAdvertising();

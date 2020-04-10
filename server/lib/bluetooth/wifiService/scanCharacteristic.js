@@ -100,5 +100,5 @@ class EchoCharacteristic extends bleno.Characteristic{
 
 }
 
-module.exports = { ScanCharacteristic }
+module.exports = ScanCharacteristic
 
