@@ -24,6 +24,8 @@ const MapLightController = require('./lib/map_light_controller');
 const Cache = require('./lib/cache');
 const mapLightController = MapLightController.create()
 
+const BLEPeripheral = require('./lib/bluetooth/BLEPeripheral');
+
 const logger = require('./lib/logger')('server');
 
 app.use(bodyParser.json());
@@ -141,6 +143,9 @@ function sendMetarData(ws, repeat=true){
 // Begin fetching metars
 WeatherRequest.call();
 mapLightController.call();
+
+// Start Bluetooth device
+(new BLEPeripheral).call();
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
 
