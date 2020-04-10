@@ -1,13 +1,13 @@
 // Takes a string and breaks it up into chunks to send
-// over BLE
-class Sender {
+// over BLE. It's designed and intended to operate between
+// a Bleno peripheral and a react-native-ble-plx central
+class BLETransport {
   constructor(data, updateValueCallback, chunkSize = 20){
     this.updateValueCallback = updateValueCallback;
     this.chunkSize = chunkSize; // bytes
     this.delay = 30 // ms between chunks
 
     this.data = this.setData(data + "\0");
-    console.log(this.data);
   }
 
   setData(data){
@@ -36,4 +36,4 @@ class Sender {
 
 }
 
-module.exports = Sender
+module.exports = BLETransport

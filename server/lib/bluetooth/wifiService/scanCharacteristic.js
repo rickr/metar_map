@@ -1,6 +1,6 @@
 const bleno = require('@abandonware/bleno');
 const wifi = require('node-wifi');
-const Sender = require('../sender')
+const BLETransport = require('../BLETransport')
 
 wifi.init({ iface: null });
 
@@ -58,7 +58,7 @@ class ScanCharacteristic extends bleno.Characteristic {
       if(!this.isScanning && this.networks.length > 0){
         console.log("Sending results");
         console.log(this.networks);
-        new Sender(this.networks, updateValueCallback).send();
+        new BLETransport(this.networks, updateValueCallback).send();
         clearInterval(interval)
       }else {
         console.log("Still scanning")

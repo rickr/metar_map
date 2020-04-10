@@ -1,6 +1,6 @@
 const bleno = require('@abandonware/bleno');
 const os = require('os');
-const Sender = require('../sender')
+const BLETransport = require('../BLETransport')
 
 class ipCharacteristic extends bleno.Characteristic {
   constructor(){
