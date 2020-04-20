@@ -10,7 +10,7 @@ class ipCharacteristic extends bleno.Characteristic {
       value: null
     })
 
-    this._value = new Buffer.from(this.fetchIP());
+    this.ip = this.fetchIP();
   }
 
   development(){ return os.arch() !== 'arm' }
@@ -27,7 +27,7 @@ class ipCharacteristic extends bleno.Characteristic {
 
   onReadRequest(offset, callback){
     console.log('IP ' + this._value);
-    callback(this.RESULT_SUCCESS, this._value);
+    callback(this.RESULT_SUCCESS, BLETransport.send(this.ip));
   }
 }
 

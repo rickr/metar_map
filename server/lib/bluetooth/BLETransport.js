@@ -2,6 +2,28 @@
 // over BLE. It's designed and intended to operate between
 // a Bleno peripheral and a react-native-ble-plx central
 class BLETransport {
+
+  // Easily send small bits of data over BLE
+  // NB If we get an object we send the string 'null'
+  static send(data){
+    console.log(typeof data);
+
+    let dataToSend = '';
+
+    switch(typeof data){
+      case 'boolean':
+        dataToSend = data.toString();
+        break;
+      case 'object':
+        dataToSend = 'null';
+        break;
+      default:
+        dataToSend = data
+    }
+
+    return Buffer.from(dataToSend);
+  }
+
   constructor(data, updateValueCallback, chunkSize = 20){
     this.updateValueCallback = updateValueCallback;
     this.chunkSize = chunkSize; // bytes

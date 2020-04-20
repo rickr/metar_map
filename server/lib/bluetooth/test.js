@@ -1,5 +1,6 @@
-const os = require('os');
+// /root/ble_test/node_modules/.bin/nodemon
 
-var networkInterfaces = os.networkInterfaces( );
+const BLEPeripheral = require('./BLEPeripheral');
+(new BLEPeripheral).call();
 
-console.log( networkInterfaces );
+
