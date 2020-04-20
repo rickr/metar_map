@@ -19,6 +19,7 @@ class ConnectedToInternetCharacteristic extends bleno.Characteristic {
   }
 
   onReadRequest(offset, callback){
+    console.log("Connection status read");
     callback(this.RESULT_SUCCESS, BLETransport.send(this.connectedToInternet));
   }
 

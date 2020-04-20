@@ -60,8 +60,6 @@ class ScanCharacteristic extends bleno.Characteristic {
         console.log(this.networks);
         new BLETransport(this.networks, updateValueCallback).send();
         clearInterval(interval)
-      }else {
-        console.log("Still scanning")
       }
     }, 1000);
   }

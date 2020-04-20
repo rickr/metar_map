@@ -5,7 +5,7 @@ const BLETransport = require('../BLETransport')
 class ipCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
-      uuid: '17137bb3-57c4-4064-afc9-288965035881',
+      uuid: '7d17ff43-b02a-4586-a488-5a7fd0bc8856',
       properties:  ['read'],
       value: null
     })
@@ -26,7 +26,7 @@ class ipCharacteristic extends bleno.Characteristic {
   }
 
   onReadRequest(offset, callback){
-    console.log('IP ' + this._value);
+    console.log('IP ' + this.ip);
     callback(this.RESULT_SUCCESS, BLETransport.send(this.ip));
   }
 }
