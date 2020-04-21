@@ -1,6 +1,6 @@
 const bleno = require('@abandonware/bleno');
 const scanCharacteristic = require('./wifiService/scanCharacteristic');
-const connectedToInternetCharacteristic = require('./wifiService/connectedToInternetCharacteristic');
+const internetConnectionStatusCharacteristic = require('./wifiService/internetConnectionStatusCharacteristic');
 const connectionCharacteristic = require('./wifiService/connectionCharacteristic');
 
 class wifiService {
@@ -13,7 +13,7 @@ class wifiService {
       uuid: this.uuid,
       characteristics: [
         new scanCharacteristic(),
-        new connectedToInternetCharacteristic(),
+        new internetConnectionStatusCharacteristic(),
         new connectionCharacteristic()
       ]
     }))

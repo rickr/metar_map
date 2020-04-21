@@ -6,7 +6,7 @@ const BLETransport = require('../BLETransport');
 const TEST_ADDRESS = 'www.google.com'
 const TEST_INTERVAL = ((5 * 1000) * 60) * 60 // 5 min
 
-class ConnectedToInternetCharacteristic extends bleno.Characteristic {
+class InternetConnectionStatusCharacteristic extends bleno.Characteristic {
   constructor(){
 
     super({
@@ -20,7 +20,8 @@ class ConnectedToInternetCharacteristic extends bleno.Characteristic {
 
   onReadRequest(offset, callback){
     console.log("Connection status read");
-    callback(this.RESULT_SUCCESS, BLETransport.send(this.connectedToInternet));
+    // callback(this.RESULT_SUCCESS, BLETransport.send(this.connectedToInternet));
+    callback(this.RESULT_SUCCESS, BLETransport.send(false));
   }
 
   checkResolveDNS(){
@@ -42,4 +43,4 @@ class ConnectedToInternetCharacteristic extends bleno.Characteristic {
   }
 }
 
-module.exports = ConnectedToInternetCharacteristic
+module.exports = InternetConnectionStatusCharacteristic

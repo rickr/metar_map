@@ -30,6 +30,7 @@ class ScanCharacteristic extends bleno.Characteristic {
       }else{
         this.networks = JSON.stringify(networks);
         this.isScanning = false;
+        this.sendResults()
         console.log('Scan complete');
       }
     })
@@ -37,9 +38,8 @@ class ScanCharacteristic extends bleno.Characteristic {
 
   onWriteRequest(data, offset, withoutResponse, callback){
     console.log("Write Request");
-    console.log("Data:" + data.toString('utf8'));
     if(data.toString('utf8') == '1'){
-      console.log('enabled') 
+      console.log('Scanning')
       this.wifiScan();
     }
     else {
@@ -52,16 +52,21 @@ class ScanCharacteristic extends bleno.Characteristic {
     //console.log("onNotify");
   }
 
-  onSubscribe(maxValueSize, updateValueCallback) {
-    console.log("On Subscribe");
+  sendResults(){
     const interval = setInterval(() => {
       if(!this.isScanning && this.networks.length > 0){
         console.log("Sending results");
         console.log(this.networks);
-        new BLETransport(this.networks, updateValueCallback).send();
+        new BLETransport(this.networks, this.updateValueCallback).send();
         clearInterval(interval)
       }
     }, 1000);
+  }
+
+  onSubscribe(maxValueSize, updateValueCallback) {
+    console.log("On Subscribe");
+    this.updateValueCallback = updateValueCallback
+    this.sendResults()
   }
 }
 
