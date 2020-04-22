@@ -17,6 +17,20 @@ class ConnectionCharacteristic extends bleno.Characteristic {
     callback(this.RESULT_SUCCESS, BLETransport.send(this.ssid));
   }
 
+  onWriteRequest(data, offset, withoutResponse, callback) {
+    this._value = data;
+
+    console.log('Connection - onWriteRequest: value = ' + this._value.toString('utf8'));
+
+//     if (this._updateValueCallback) {
+//       console.log('EchoCharacteristic - onWriteRequest: notifying');
+//
+//       this._updateValueCallback(this._value);
+//     }
+//
+    callback(this.RESULT_SUCCESS);
+  };
+
   // On write we connect to the ssid/password provided
   // onReadRequest(offset, callback){
   //   callback(this.RESULT_SUCCESS, Buffer.from(this.connectedToInternet.toString()));
