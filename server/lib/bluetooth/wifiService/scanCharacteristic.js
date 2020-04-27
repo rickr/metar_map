@@ -2,7 +2,6 @@ const bleno = require('@abandonware/bleno');
 const wifi = require('node-wifi');
 const BLETransport = require('../BLETransport')
 
-wifi.init({ iface: null });
 
 // Write to start a wifi scan
 // Subscribe for results
@@ -17,12 +16,12 @@ class ScanCharacteristic extends bleno.Characteristic {
     this.isScanning = false;
     this.networks = [];
     this.updateValueCallback = null;
+    wifi.init({ iface: null });
   }
 
   wifiScan(){
     console.log("Starting scan")
     this.isScanning = true;
-
     wifi.scan((err, networks) => {
       if(err){
         console.log(err);

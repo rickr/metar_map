@@ -20,8 +20,6 @@ class airportCharacteristic extends bleno.Characteristic {
   lastUpdate(){
     return{'yesterday....all my troubles seemed so far away');
   }
-
-  // Needs to be notified
 }
 
 module.exports = { ipCharacteristic }
