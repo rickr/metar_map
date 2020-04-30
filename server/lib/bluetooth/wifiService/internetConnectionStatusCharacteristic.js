@@ -20,7 +20,7 @@ class InternetConnectionStatusCharacteristic extends bleno.Characteristic {
 
   onReadRequest(offset, callback){
     callback(this.RESULT_SUCCESS, BLETransport.send(this.connectedToInternet));
-    // callback(this.RESULT_SUCCESS, BLETransport.send(false));
+    //callback(this.RESULT_SUCCESS, BLETransport.send(false));
   }
 
   checkResolveDNS(){

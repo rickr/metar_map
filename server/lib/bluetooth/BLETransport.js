@@ -6,8 +6,6 @@ class BLETransport {
   // Easily send small bits of data over BLE
   // NB If we get an object we send the string 'null'
   static send(data){
-    console.log(typeof data);
-
     let dataToSend = '';
 
     switch(typeof data){
@@ -27,7 +25,7 @@ class BLETransport {
   constructor(data, updateValueCallback, chunkSize = 20){
     this.updateValueCallback = updateValueCallback;
     this.chunkSize = chunkSize; // bytes
-    this.delay = 30 // ms between chunks
+    this.delay = 10 // ms between chunks
 
     this.data = this.setData(data + "\0");
   }
@@ -37,6 +35,10 @@ class BLETransport {
   }
 
   send(){
+    if(!this.updateValueCallback){
+      console.log('No callback provided');
+      return false
+    }
     this.data.forEach((chunk, i) => {
       setTimeout(() => { this.sendChunk(chunk) }, i * this.delay);
     })

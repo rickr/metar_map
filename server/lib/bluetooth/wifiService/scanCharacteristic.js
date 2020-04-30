@@ -16,7 +16,7 @@ class ScanCharacteristic extends bleno.Characteristic {
     this.isScanning = false;
     this.networks = [];
     this.updateValueCallback = null;
-    wifi.init({ iface: null });
+    wifi.init({iface: null});
   }
 
   wifiScan(){

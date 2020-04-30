@@ -31,6 +31,8 @@ const logger = require('./lib/logger')('server');
 app.use(bodyParser.json());
 app.use(cors());
 
+// A message has the format of
+// { type: TYPE, payload: PAYLOAD}
 class Message{
   constructor(message){
     this.parsedMessage = JSON.parse(message)

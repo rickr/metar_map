@@ -49,7 +49,7 @@ class MetarRequest{
     if(dataJSON == false){ return {} }
 
 
-    if(dataJSON.response.data == null){
+    if(!dataJSON.response || dataJSON.response.data == null){
       logger.info("The data looks invalid - aborting (check '" + this.fileName() + "')");
       return { has_errors: true, errors: dataJSON.response.errors }
     }
@@ -157,6 +157,23 @@ class WeatherRequest{
 
     return data
   }
+
+  static airportsAndCategories(){
+    const data = MetarRequest.json()
+    const airports = data.airports
+    let output = []
+    for(const airport in airports){
+      if(!airports[airport]){ continue }
+      let obj = {}
+      let stationID = airports[airport].station_id._text
+      let flightCategory = airports[airport].flight_category && airports[airport].flight_category._text
+      console.log(flightCategory)
+
+      output.push({name: stationID, flightCategory: flightCategory})
+    }
+    return output
+  }
+
 }
 
 module.exports = { WeatherRequest, MetarRequest, TafRequest };
