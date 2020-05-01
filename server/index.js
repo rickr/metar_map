@@ -41,34 +41,50 @@ class Message{
   }
 }
 
+// Message Types
+const SUBSCRIBE = 'subscribe';
+const LEDS = 'leds';
+const DATA = 'data';
+
+// Message Subtypes
+//   Subscription
+const METARS = 'metars'
+const AIRPORTS_AND_CATEGORIES = 'airports-and-categories'
+const LOGS = 'logs'
+//   LEDS
+const ON = true
+const OFF = false
+//   DATA
+const UPDATE = 'update'
+
+
 app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (msg) => {
     const message = new Message(msg)
 
     switch(message.type){
-      case "subscribe":
+      case SUBSCRIBE:
         switch(message.payload){
-          case "metars":
+          case METARS:
             logger.info("metars RX");
-            // sendMetarData(ws);
             sendData(ws, 'metar-data', WeatherRequest.json())
             break;
-          case "airports-and-categories":
+          case AIRPORTS_AND_CATEGORIES:
             sendData(ws, 'airports-and-categories', WeatherRequest.airportsAndCategories());
             break;
-          case "logs":
+          case LOGS:
             logger.info("log message RX");
             sendLogData(ws);
             break;
         }
         break;
-      case "leds":
+      case LEDS:
         switch(message.payload){
-          case true:
+          case ON:
             logger.info("ledState on");
             mapLightController.lightsOn();
             break;
-          case false:
+          case OFF:
             logger.info("ledState off");
             mapLightController.lightsOff();
             break;
@@ -77,12 +93,11 @@ app.ws('/metar.ws', (ws, req) => {
             break;
         }
         break;
-      case "data":
+      case DATA:
         switch(message.payload){
-          case 'update':
+          case UPDATE:
             logger.info("Updating data");
             WeatherRequest.update();
-            // sendMetarData(ws, false);
             sendData(ws, 'metar-data', WeatherRequest.json(), false)
             break;
           default:
