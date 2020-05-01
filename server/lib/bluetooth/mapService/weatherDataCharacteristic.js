@@ -20,10 +20,15 @@ class weatherDataCharacteristic extends bleno.Characteristic {
 
   weatherDataCallback(){
     this.ws.onmessage = (message) => {
-      const parsedMessage = JSON.parse(message.data)
-      if(parsedMessage && parsedMessage.type == 'airports-and-categories'){
-        this.weatherData = parsedMessage.payload
-        this.sendResults();
+      try{
+        const parsedMessage = JSON.parse(message.data)
+        if(parsedMessage && parsedMessage.type == 'airports-and-categories'){
+          this.weatherData = parsedMessage.payload
+          this.sendResults();
+        }
+      }catch(error){
+        console.log("Error:");
+        console.log(error);
       }
     }
   }

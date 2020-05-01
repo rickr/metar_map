@@ -54,6 +54,7 @@ const LOGS = 'logs'
 //   LEDS
 const ON = true
 const OFF = false
+const STATUS = 'status'
 //   DATA
 const UPDATE = 'update'
 
@@ -87,6 +88,10 @@ app.ws('/metar.ws', (ws, req) => {
           case OFF:
             logger.info("ledState off");
             mapLightController.lightsOff();
+            break;
+          case STATUS:
+            console.log('Sending', mapLightController.getLightStatus());
+            sendData(ws, 'light-status', mapLightController.getLightStatus(), false)
             break;
           default:
             logger.info("Unknown leds message: " + msg);

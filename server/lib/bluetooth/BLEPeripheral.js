@@ -17,11 +17,12 @@ class BLEPeripheral {
     this.services = [];
     this.ws = null;
 
+    // Maybe we should just run this when someone connects
+    // and kill it when someone disconnects
     this.initializeWebSocket();
 
     this.registerServices();
     this.registerHandlers();
-
   }
 
   call(){
@@ -29,7 +30,7 @@ class BLEPeripheral {
   }
 
   initializeWebSocket(){
-    // FIXME extract this out so its shared between here and the server
+    // FIXME extract this port line out so its shared between here and the server
     // FIXME This lib also supports unix sockets and we should use them
     const port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
     const wsAddress = 'ws://localhost:' + port + '/metar.ws';

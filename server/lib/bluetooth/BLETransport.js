@@ -13,6 +13,7 @@ class BLETransport {
         dataToSend = data.toString();
         break;
       case 'object':
+        console.log("Got typeof 'object', sending null");
         dataToSend = 'null';
         break;
       default:

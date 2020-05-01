@@ -6,6 +6,7 @@ class MapLightController{
   constructor(){
     this.updateInterval = 10 //seconds
     this.timeout = null
+    this.lightsOn = true
   }
 
   static create(){
@@ -43,6 +44,11 @@ class MapLightController{
 
   updateMap(){
     this.logger.info("Updating LEDs");
+    if(!this.lightsOn){
+      clearTimeout(this.timeout);
+      return
+    }
+
     try {
       const metars = MetarRequest.json();
       if(!metars.airports){ throw 'Airports not fetched' }
@@ -71,8 +77,9 @@ class MapLightController{
     }
   }
 
-  lightsOn(){ this.updateMap(); };
-  lightsOff(){ clearTimeout(this.timeout) };
+  lightsOn(){ this.lightsOn = true; };
+  lightsOff(){ this.lightsOn = false };
+  getLightStatus() { return {lightsOn: this.lightsOn} };
 }
 
 // FIXME How in the hell can we get this to exist in another file...
