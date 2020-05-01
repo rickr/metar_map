@@ -22,7 +22,7 @@ class weatherDataCharacteristic extends bleno.Characteristic {
     this.ws.onmessage = (message) => {
       const parsedMessage = JSON.parse(message.data)
       if(parsedMessage && parsedMessage.type == 'airports-and-categories'){
-        this.weatherData = message.data
+        this.weatherData = parsedMessage.payload
         this.sendResults();
       }
     }
@@ -43,12 +43,8 @@ class weatherDataCharacteristic extends bleno.Characteristic {
   }
 
   sendResults(){
-    // Noone is subscribed
-    if(!this.updateValueCallback){ return; }
-
-    new BLETransport(JSON.stringify(this.getWeatherData), this.updateValueCallback).send();
+    new BLETransport(JSON.stringify(this.weatherData), this.updateValueCallback).send();
   }
-
 }
 
 module.exports = { weatherDataCharacteristic }

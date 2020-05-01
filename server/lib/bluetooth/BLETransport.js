@@ -36,9 +36,10 @@ class BLETransport {
 
   send(){
     if(!this.updateValueCallback){
-      console.log('No callback provided');
+      console.log('No callback provided, not sending data');
       return false
     }
+
     this.data.forEach((chunk, i) => {
       setTimeout(() => { this.sendChunk(chunk) }, i * this.delay);
     })
