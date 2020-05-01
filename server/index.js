@@ -50,7 +50,11 @@ app.ws('/metar.ws', (ws, req) => {
         switch(message.payload){
           case "metars":
             logger.info("metars RX");
-            sendMetarData(ws);
+            // sendMetarData(ws);
+            sendData(ws, 'metar-data', WeatherRequest.json())
+            break;
+          case "airports-and-categories":
+            sendData(ws, 'airports-and-categories', WeatherRequest.airportsAndCategories());
             break;
           case "logs":
             logger.info("log message RX");
@@ -78,7 +82,8 @@ app.ws('/metar.ws', (ws, req) => {
           case 'update':
             logger.info("Updating data");
             WeatherRequest.update();
-            sendMetarData(ws, false);
+            // sendMetarData(ws, false);
+            sendData(ws, 'metar-data', WeatherRequest.json(), false)
             break;
           default:
             logger.info("Unknown data message: " + msg);
@@ -117,7 +122,7 @@ sendLogData = (ws) => {
   }
 }
 
-function sendMetarData(ws, repeat=true){
+sendMetarData = (ws, repeat=true) => {
   logger.info("Sending metar data");
   if(!ws){ logger.info("WS is null"); return false }
 
@@ -137,6 +142,29 @@ function sendMetarData(ws, repeat=true){
     }
 
     if(repeat) { setTimeout(sendMetarData, 10 * 1000, ws) };
+  }else{
+    logger.info("Unknown ready state: " + ws.readyState);
+  }
+}
+
+sendData = (ws, payloadName, payload, repeat=true) => {
+  logger.info('Sending ' + payloadName + ' data');
+  if(!ws){ logger.info("WS is null"); return false }
+
+  if(ws.readyState === 1){
+    if(payload.has_errors){
+      ws.send(JSON.stringify({
+        type: 'error',
+        payload: payload
+      }));
+    } else {
+      ws.send(JSON.stringify({
+        type: payloadName,
+        payload: payload,
+      }));
+    }
+
+    if(repeat) { setTimeout(sendData, 10 * 1000, ws, payloadName, payload, repeat) };
   }else{
     logger.info("Unknown ready state: " + ws.readyState);
   }

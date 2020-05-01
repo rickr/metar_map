@@ -5,14 +5,16 @@ const {weatherDataCharacteristic} = require('./mapService/weatherDataCharacteris
 class mapService {
   static uuid(){ return 'a5023bbe-29f9-4385-ab43-a9b3600ab7c4' }
 
-  constructor(){
+  constructor(ws){
     this.uuid = mapService.uuid();
+    this.ws = ws
+    console.log('ws is ' + ws);
 
     return(new bleno.PrimaryService({
       uuid: this.uuid,
       characteristics: [
         new ipCharacteristic(),
-        new weatherDataCharacteristic(),
+        new weatherDataCharacteristic(this.ws),
       ]
     }))
   }

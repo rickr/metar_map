@@ -6,26 +6,46 @@ const logger = require('../logger')('BLEPeripheral');
 const mapService = require('./mapService')
 const wifiService = require('./wifiService')
 
+const WebSocket = require('ws');
+
+
 // For non root running:
 // sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 class BLEPeripheral {
   constructor(){
     this.startAdvertising = false;
-    this.services = []
+    this.services = [];
+    this.ws = null;
+
+    this.initializeWebSocket();
 
     this.registerServices();
     this.registerHandlers();
 
-    logger.info("State: " + bleno.state);
   }
 
   call(){
     this.startAdvertising = true;
   }
 
+  initializeWebSocket(){
+    // FIXME extract this out so its shared between here and the server
+    // FIXME This lib also supports unix sockets and we should use them
+    const port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
+    const wsAddress = 'ws://localhost:' + port + '/metar.ws';
+    console.log('Connecting to:', wsAddress);
+    this.ws = new WebSocket(wsAddress);
+
+    this.ws.onopen = () => {
+      this.ws.send(JSON.stringify({subscribe: 'airports-and-categories'}));
+    }
+    this.ws.onmessage = () => { console.log('on message') };
+  }
+
   registerServices(){
     this.services.push(new wifiService);
-    this.services.push(new mapService);
+    console.log("sending ws" + this.ws);
+    this.services.push(new mapService(this.ws));
   }
 
   serviceUUIDs(){

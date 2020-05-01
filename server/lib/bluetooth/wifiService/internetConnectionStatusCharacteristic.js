@@ -32,7 +32,6 @@ class InternetConnectionStatusCharacteristic extends bleno.Characteristic {
         if (this.connectedToInternet) {
           //connection is still up and running, do nothing
         } else {
-          console.log('Internet is connected');
           this.connectedToInternet = true;
         }
       };

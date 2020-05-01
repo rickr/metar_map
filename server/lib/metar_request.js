@@ -167,7 +167,6 @@ class WeatherRequest{
       let obj = {}
       let stationID = airports[airport].station_id._text
       let flightCategory = airports[airport].flight_category && airports[airport].flight_category._text
-      console.log(flightCategory)
 
       output.push({name: stationID, flightCategory: flightCategory})
     }
