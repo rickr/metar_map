@@ -1,3 +1,5 @@
+// A class to handle RXd messages from our clients
+//
 // A message has the format of
 // { type: TYPE, payload: PAYLOAD}
 class Message{

@@ -1,3 +1,7 @@
+// Allows us to push data to an array but only keep
+// retain a certain amount of data.
+//
+// Mostly used to cache log data to send to clients
 class Cache{
   constructor(maxLength){
     this.values = [];

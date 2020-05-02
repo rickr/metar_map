@@ -1,6 +1,11 @@
 const {createLogger, format, transports}  = require('winston');
 const config = require('./config');
 
+//
+// A unified logger that allows us to identify which
+// components are doing the logging
+//
+
 class Logger{
   constructor(serviceName = 'server'){
     const logger = createLogger({

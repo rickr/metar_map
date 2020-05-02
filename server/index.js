@@ -96,6 +96,7 @@ app.ws('/metar.ws', (ws, req) => {
 // Serve our production build
 app.use(express.static(path.join(__dirname, '../client/build')));
 
+// Sends log data to the ws client
 sendLogData = (ws) => {
   let logLines = new Cache(100)
 
@@ -119,7 +120,13 @@ sendLogData = (ws) => {
   }
 }
 
-sendData = (ws, payloadName, payload, repeat=true) => {
+// Send data to the websocket client.
+// * ws           - the websocket
+// * payloadName  - populates the 'type' field of the message
+// * payload      - the data to be sent
+// * repeat       - if the data should be sent repeatedly
+// * sendInterval - how often to send the data
+sendData = (ws, payloadName, payload, repeat=true, sendInterval=10) => {
   logger.info('Sending ' + payloadName + ' data');
   if(!ws){ logger.info("WS is null"); return false }
 
@@ -136,7 +143,7 @@ sendData = (ws, payloadName, payload, repeat=true) => {
       }));
     }
 
-    if(repeat) { setTimeout(sendData, 10 * 1000, ws, payloadName, payload, repeat) };
+    if(repeat) { setTimeout(sendData, sendInterval * 1000, ws, payloadName, payload, repeat) };
   }else{
     logger.info("Unknown ready state: " + ws.readyState);
   }

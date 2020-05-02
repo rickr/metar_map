@@ -8,6 +8,11 @@ const querystring = require('querystring');
 const config = require('./config');
 const logger = require('./logger')('MetarRequest');
 
+//
+// These classes handle fetching and accessing the METAR and TAF weather data
+// The data ends up on disk for us to transform/process
+//
+
 // Converting this to work on instances would probably be easier
 class MetarRequest{
   static params(){

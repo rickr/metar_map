@@ -2,6 +2,15 @@ const os = require('os');
 const config = require('./config');
 const MetarRequest = require('./metar_request').MetarRequest;
 
+//
+// The Map Light Controller controls the lights, their colors, and
+// any other light related functions. It's designed to be subclassed
+// based on the platform and LED driver you're using. 
+//
+// You can configure the driver in the config file
+//
+
+
 class MapLightController{
   constructor(){
     this.updateInterval = 10 //seconds
