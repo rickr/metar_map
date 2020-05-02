@@ -8,6 +8,8 @@ const wifiService = require('./wifiService')
 
 const WebSocket = require('ws');
 
+const getPort = require('../getPort')
+const port = getPort();
 
 // For non root running:
 // sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
@@ -30,9 +32,6 @@ class BLEPeripheral {
   }
 
   initializeWebSocket(){
-    // FIXME extract this port line out so its shared between here and the server
-    // FIXME This lib also supports unix sockets and we should use them
-    const port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
     const wsAddress = 'ws://localhost:' + port + '/metar.ws';
     console.log('Connecting to:', wsAddress);
     this.ws = new WebSocket(wsAddress);

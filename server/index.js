@@ -4,7 +4,6 @@ const enableWs = require('express-ws')
 const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const port = process.env.METAR_MAP_ENV == 'production' ? 80 : 4567;
 const https = require('https');
 const convert = require('xml-js');
 const os = require('os');
@@ -16,6 +15,8 @@ const app = express();
 enableWs(app)
 
 // Local libs
+const getPort = require('./lib/getPort');
+const port = getPort();
 const Config = require('./lib/config')
 const MetarRequest = require('./lib/metar_request').MetarRequest
 const TafRequest = require('./lib/metar_request').TafRequest
@@ -37,7 +38,6 @@ app.use(cors());
 app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (msg) => {
     const message = new Message(msg)
-    console.log(message);
     switch(message.type){
       case messageTypes.SUBSCRIBE:
         switch(message.payload){
@@ -150,4 +150,5 @@ mapLightController.call();
 (new BLEPeripheral).call();
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
+app.listen('/tmp/metar-map-socket', () => logger.info(`Metar Map listening on port ${port}!`))
 
