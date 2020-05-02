@@ -28,68 +28,54 @@ const BLEPeripheral = require('./lib/bluetooth/BLEPeripheral');
 
 const logger = require('./lib/logger')('server');
 
+const Message = require('./lib/message');
+const messageTypes = require('./lib/message_types');
+
 app.use(bodyParser.json());
 app.use(cors());
 
 // A message has the format of
 // { type: TYPE, payload: PAYLOAD}
-class Message{
-  constructor(message){
-    this.parsedMessage = JSON.parse(message)
-    this.type = Object.keys(this.parsedMessage)[0]
-    this.payload = Object.values(this.parsedMessage)[0]
-  }
-}
-
-// Message Types
-const SUBSCRIBE = 'subscribe';
-const LEDS = 'leds';
-const DATA = 'data';
-
-// Message Subtypes
-//   Subscription
-const METARS = 'metars'
-const AIRPORTS_AND_CATEGORIES = 'airports-and-categories'
-const LOGS = 'logs'
-//   LEDS
-const ON = true
-const OFF = false
-const STATUS = 'status'
-//   DATA
-const UPDATE = 'update'
-
+// class Message{
+//   constructor(message){
+//     this.parsedMessage = JSON.parse(message)
+//     this.type = Object.keys(this.parsedMessage)[0]
+//     this.payload = Object.values(this.parsedMessage)[0]
+//   }
+// }
 
 app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (msg) => {
     const message = new Message(msg)
-
+    console.log(message);
     switch(message.type){
-      case SUBSCRIBE:
+      case messageTypes.SUBSCRIBE:
         switch(message.payload){
-          case METARS:
+          case messageTypes.subscribe.METARS:
             logger.info("metars RX");
-            sendData(ws, 'metar-data', WeatherRequest.json())
+            //sendData(ws, 'metar-data', WeatherRequest.json())
+            sendData(ws, 'metars', WeatherRequest.json())
             break;
-          case AIRPORTS_AND_CATEGORIES:
+          case messageTypes.subscribe.AIRPORTS_AND_CATEGORIES:
             sendData(ws, 'airports-and-categories', WeatherRequest.airportsAndCategories());
             break;
-          case LOGS:
+          case messageTypes.subscribe.LOGS:
             logger.info("log message RX");
             sendLogData(ws);
             break;
         }
         break;
-      case LEDS:
+      case messageTypes.LEDS:
         switch(message.payload){
-          case ON:
+          case messageTypes.leds.ON:
             logger.info("ledState on");
             mapLightController.lightsOn();
             break;
-          case OFF:
+          case messageTypes.leds.OFF:
             logger.info("ledState off");
             mapLightController.lightsOff();
             break;
-          case STATUS:
+          case messageTypes.leds.STATUS:
             console.log('Sending', mapLightController.getLightStatus());
             sendData(ws, 'light-status', mapLightController.getLightStatus(), false)
             break;
@@ -98,9 +84,9 @@ app.ws('/metar.ws', (ws, req) => {
             break;
         }
         break;
-      case DATA:
+      case messageTypes.DATA:
         switch(message.payload){
-          case UPDATE:
+          case messageTypes.data.UPDATE:
             logger.info("Updating data");
             WeatherRequest.update();
             sendData(ws, 'metar-data', WeatherRequest.json(), false)

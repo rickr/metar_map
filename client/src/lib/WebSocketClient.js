@@ -41,6 +41,7 @@ export default class WebSocketClient {
   send = (message) => { this.ws.send(JSON.stringify(message)) }
 
   handleMessage = (message) => {
+    console.log(message);
     switch(message.type){
       case "metars":
         console.log('RX METAR');
