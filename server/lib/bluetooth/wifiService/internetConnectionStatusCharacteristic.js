@@ -2,15 +2,17 @@ const bleno = require('@abandonware/bleno');
 const dns = require("dns");
 const BLETransport = require('../BLETransport');
 
+const Services = require('../services');
 
-const TEST_ADDRESS = 'www.google.com'
-const TEST_INTERVAL = ((5 * 1000) * 60) * 60 // 5 min
+
+const TEST_ADDRESS = 'www.google.com';
+const TEST_INTERVAL = ((5 * 1000) * 60) * 60; // 5 min
 
 class InternetConnectionStatusCharacteristic extends bleno.Characteristic {
   constructor(){
 
     super({
-      uuid: '544eb8bb-c6ba-4e94-b2e9-581855102634',
+      uuid: Services.wifiService.characteristics.internetConnection,
       properties:  ['read'],
     })
 

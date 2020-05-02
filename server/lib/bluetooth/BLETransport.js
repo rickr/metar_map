@@ -5,6 +5,7 @@ class BLETransport {
 
   // Easily send small bits of data over BLE
   // NB If we get an object we send the string 'null'
+  // and I hate this
   static send(data){
     let dataToSend = '';
 

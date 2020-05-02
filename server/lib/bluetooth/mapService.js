@@ -2,9 +2,14 @@ const bleno = require('@abandonware/bleno');
 const {ipCharacteristic} = require('./mapService/ipCharacteristic');
 const {weatherDataCharacteristic} = require('./mapService/weatherDataCharacteristic');
 const {lightStatusCharacteristic} = require('./mapService/lightStatusCharacteristic');
+const Services = require('./services');
+
+//
+// The Map Service deals with map data and command/control (light status, modes etc)
+//
 
 class mapService {
-  static uuid(){ return 'a5023bbe-29f9-4385-ab43-a9b3600ab7c4' }
+  static uuid(){ return Services.mapService.uuid }
 
   constructor(ws){
     this.uuid = mapService.uuid();

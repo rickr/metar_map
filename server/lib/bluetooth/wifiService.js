@@ -3,8 +3,14 @@ const scanCharacteristic = require('./wifiService/scanCharacteristic');
 const internetConnectionStatusCharacteristic = require('./wifiService/internetConnectionStatusCharacteristic');
 const connectionCharacteristic = require('./wifiService/connectionCharacteristic');
 
+const Services = require('./services')
+
+//
+// The Wifi service deals with scanning for wifi, connecting, and disconnecting
+//
+
 class wifiService {
-  static uuid(){ return 'ed6695dd-be8a-44d6-a11d-cb3348faa85a' }
+  static uuid(){ return Services.wifiService.uuid }
 
   constructor(){
     this.uuid = wifiService.uuid()

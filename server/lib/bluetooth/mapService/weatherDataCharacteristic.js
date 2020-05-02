@@ -1,12 +1,14 @@
 const bleno = require('@abandonware/bleno');
 const BLETransport = require('../BLETransport')
 
+const Services = require('../services')
+
 const WeatherRequest = require('../../metar_request').WeatherRequest
 
 class weatherDataCharacteristic extends bleno.Characteristic {
   constructor(ws){
     super({
-      uuid: '8dc27e53-225f-40a5-a198-b401b7786a5b',
+      uuid: Services.mapService.characteristics.weatherData,
       properties:  ['write', 'notify'],
     })
 

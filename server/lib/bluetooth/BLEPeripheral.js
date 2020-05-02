@@ -11,6 +11,13 @@ const WebSocket = require('ws');
 const getPort = require('../getPort')
 const port = getPort();
 
+//
+// This class is the entry point for our BLE 'server'
+// BLE is composed of 'services', and within the services
+// 'characteristics'. You can read, write, and be notfifed
+// of characteristic values.
+//
+
 // For non root running:
 // sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 class BLEPeripheral {
@@ -89,7 +96,7 @@ class BLEPeripheral {
         this.services,
         (error) => {
           logger.info('setServices: '  + (error ? 'error ' + error : 'success'));
-          logger.info('Advertising ' + this.services.length + ' servies');
+          logger.info('Advertising ' + this.services.length + ' services');
           logger.info("Address: " + bleno.address);
         }
       )

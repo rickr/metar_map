@@ -2,13 +2,15 @@ const bleno = require('@abandonware/bleno');
 const wifi = require('node-wifi');
 const BLETransport = require('../BLETransport')
 
+const Services = require('../services')
+
 
 // Write to start a wifi scan
 // Subscribe for results
 class ScanCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
-      uuid: 'fe600987-e2ea-4c16-b938-f5d04e904af2',
+      uuid: Services.wifiService.characteristics.scan,
       properties:  ['write', 'notify'],
       value: ''
     })

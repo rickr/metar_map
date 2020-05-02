@@ -1,11 +1,12 @@
 const bleno = require('@abandonware/bleno');
 const os = require('os');
 const BLETransport = require('../BLETransport')
+const Services = require('../services')
 
 class ipCharacteristic extends bleno.Characteristic {
   constructor(){
     super({
-      uuid: '7d17ff43-b02a-4586-a488-5a7fd0bc8856',
+      uuid: Services.mapService.characteristics.ip,
       properties:  ['read'],
       value: null
     })

@@ -1,10 +1,12 @@
 const bleno = require('@abandonware/bleno');
 const BLETransport = require('../BLETransport')
 
+const Services = require('../services')
+
 class lightStatusCharacteristic extends bleno.Characteristic {
   constructor(ws){
     super({
-      uuid: '7ee3f726-1ba7-4e74-a278-3c4f1fc46db0',
+      uuid: Services.mapService.characteristics.lightStatus,
       properties:  ['read', 'write'],
     })
     this.ws = ws

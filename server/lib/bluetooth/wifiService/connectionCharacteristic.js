@@ -3,11 +3,13 @@ const BLETransport = require('../BLETransport');
 const wifi = require('node-wifi');
 const disconnectWifi = require('node-wifi');
 
+const Services = require('../services')
+
 class ConnectionCharacteristic extends bleno.Characteristic {
   constructor(){
 
     super({
-      uuid: 'b4a7d251-7467-440c-9bf8-570f1fbc929f',
+      uuid: Services.wifiService.characteristics.connection,
       properties:  ['read', 'write'],
     })
 
