@@ -34,16 +34,6 @@ const messageTypes = require('./lib/message_types');
 app.use(bodyParser.json());
 app.use(cors());
 
-// A message has the format of
-// { type: TYPE, payload: PAYLOAD}
-// class Message{
-//   constructor(message){
-//     this.parsedMessage = JSON.parse(message)
-//     this.type = Object.keys(this.parsedMessage)[0]
-//     this.payload = Object.values(this.parsedMessage)[0]
-//   }
-// }
-
 app.ws('/metar.ws', (ws, req) => {
   ws.on('message', (msg) => {
     const message = new Message(msg)
@@ -53,6 +43,7 @@ app.ws('/metar.ws', (ws, req) => {
         switch(message.payload){
           case messageTypes.subscribe.METARS:
             logger.info("metars RX");
+            // This might have broken the ios app
             //sendData(ws, 'metar-data', WeatherRequest.json())
             sendData(ws, 'metars', WeatherRequest.json())
             break;
@@ -125,31 +116,6 @@ sendLogData = (ws) => {
         }));
       }
     })
-  }
-}
-
-sendMetarData = (ws, repeat=true) => {
-  logger.info("Sending metar data");
-  if(!ws){ logger.info("WS is null"); return false }
-
-  if(ws.readyState === 1){
-    let payload = WeatherRequest.json();
-
-    if(payload.has_errors){
-      ws.send(JSON.stringify({
-        type: 'error',
-        payload: payload
-      }));
-    } else {
-      ws.send(JSON.stringify({
-        type: 'metars',
-        payload: payload
-      }));
-    }
-
-    if(repeat) { setTimeout(sendMetarData, 10 * 1000, ws) };
-  }else{
-    logger.info("Unknown ready state: " + ws.readyState);
   }
 }
 
