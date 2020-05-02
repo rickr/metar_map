@@ -150,5 +150,4 @@ mapLightController.call();
 (new BLEPeripheral).call();
 
 app.listen(port, () => logger.info(`Metar Map listening on port ${port}!`))
-app.listen('/tmp/metar-map-socket', () => logger.info(`Metar Map listening on port ${port}!`))
 

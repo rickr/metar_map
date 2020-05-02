@@ -44,7 +44,6 @@ class BLEPeripheral {
 
   registerServices(){
     this.services.push(new wifiService);
-    console.log("sending ws" + this.ws);
     this.services.push(new mapService(this.ws));
   }
 

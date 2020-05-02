@@ -9,7 +9,6 @@ class mapService {
   constructor(ws){
     this.uuid = mapService.uuid();
     this.ws = ws
-    console.log('ws is ' + ws);
 
     return(new bleno.PrimaryService({
       uuid: this.uuid,
